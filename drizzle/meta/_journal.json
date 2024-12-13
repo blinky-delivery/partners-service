@@ -8,6 +8,27 @@
       "when": 1733840433854,
       "tag": "0000_create-store-users-table",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1733918567534,
+      "tag": "0001_equal_the_stranger",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1733922696203,
+      "tag": "0002_striped_arclight",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1733922916165,
+      "tag": "0003_ambiguous_vivisector",
+      "breakpoints": true
     }
   ]
 }

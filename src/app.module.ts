@@ -1,6 +1,8 @@
 
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { StoreUsersModule } from './store-users/store-users.module';
+import { StoreModule } from './store/store.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -14,6 +16,8 @@ import * as Joi from 'joi';
         POSTGRES_DB: Joi.string().required(),
       }),
     }),
+    StoreUsersModule,
+    StoreModule,
   ],
   controllers: [],
   providers: [],

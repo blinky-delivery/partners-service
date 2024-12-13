@@ -5,7 +5,7 @@ import { sql } from 'drizzle-orm';
 export const storeUsers = pgTable('store_users', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
     extAuthId: varchar('ext_auth_id', { length: 255 }),
-    storeId: varchar('store_id', { length: 255 }),
+    storeId: varchar('store_id', { length: 255 }).notNull(),
     email: varchar('email', { length: 255 }).notNull().unique(),
     role: varchar('role', { length: 50 }).notNull(), // e.g., owner, manager, employee, driver
     firstName: varchar('first_name', { length: 255 }),
@@ -65,10 +65,10 @@ export const stores = pgTable('stores', {
         onDelete: 'set null',
     }),
     name: varchar('name', { length: 255 }).notNull(),
-    description: text('description'),
-    contactPhone: varchar('contact_phone', { length: 20 }),
-    address: varchar('address', { length: 255 }),
-    numberOfSites: integer('number_of_sites'),
+    description: text('description').notNull().default(""),
+    contactPhone: varchar('contact_phone', { length: 20 }).notNull(),
+    address: varchar('address', { length: 255 }).notNull(),
+    numberOfSites: integer('number_of_sites').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true })
         .default(sql`CURRENT_TIMESTAMP`)
         .notNull(),
