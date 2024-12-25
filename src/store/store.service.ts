@@ -9,7 +9,6 @@ type NewStore = typeof databaseSchema.stores.$inferSelect;
 @Injectable()
 export class StoreService {
     constructor(
-        private readonly drizzleService: DrizzleService,
         private readonly usersService: StoreUsersService,
     ) { }
 

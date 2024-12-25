@@ -7,4 +7,4 @@ import { ConfigModule } from '@nestjs/config';
     providers: [ClerkService],
     exports: [ClerkService],
 })
-export class ClerkModule { }
+export class AuthModule { }

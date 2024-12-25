@@ -40,7 +40,7 @@ export class StoreUsersService {
             return user;
         } catch (error) {
             this.logger.error(`Failed to fetch user with ID: ${id}`);
-            throw new InternalServerErrorException('Failed to fetch user. Please try again later.');
+            throw new InternalServerErrorException('Failed to fetch user.');
         }
     }
 
@@ -100,7 +100,7 @@ export class StoreUsersService {
                 );
             }
 
-            throw new InternalServerErrorException('Failed to create user in the database. Please try again later.');
+            throw new InternalServerErrorException('Failed to create user in the database.');
         }
     }
 }
