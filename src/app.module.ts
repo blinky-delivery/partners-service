@@ -14,6 +14,7 @@ import * as Joi from 'joi';
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_DB: Joi.string().required(),
+        CLERK_SECRET_KEY: Joi.string().required(),
       }),
     }),
     StoreUsersModule,

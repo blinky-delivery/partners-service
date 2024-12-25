@@ -14,26 +14,6 @@ export class StoreService {
     ) { }
 
     async create(dto: SignupStoreDto) {
-        await this.drizzleService.db.transaction(async (tx) => {
-            const stores = await tx.insert(databaseSchema.stores).values(
-                {
-                    name: dto.name,
-                    contactPhone: dto.contactPhone,
-                    storeTypeId: dto.storeType,
-                    numberOfSites: dto.numberOfSites,
-                    address: dto.address,
-                }
-            ).returning()
 
-            const store = stores.pop()
-
-            const user = await tx.insert(databaseSchema.storeUsers).values(
-                {
-                    email: dto.user.email,
-                    storeId: store.id,
-                    role: 'OWNER',
-                }
-            )
-        })
     }
 }
