@@ -44,15 +44,28 @@ CREATE TABLE "store_types" (
 	CONSTRAINT "store_types_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
+CREATE TABLE "store_users" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"ext_auth_id" varchar(255) NOT NULL,
+	"store_id" varchar(255),
+	"email" varchar(255) NOT NULL,
+	"role" varchar(50) NOT NULL,
+	"first_name" varchar(255) NOT NULL,
+	"phone_number" varchar(20) NOT NULL,
+	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	CONSTRAINT "store_users_email_unique" UNIQUE("email")
+);
+--> statement-breakpoint
 CREATE TABLE "stores" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"store_type_id" integer NOT NULL,
 	"owner_id" uuid,
 	"name" varchar(255) NOT NULL,
-	"description" text,
-	"contact_phone" varchar(20),
-	"address" varchar(255),
-	"number_of_sites" integer,
+	"description" text DEFAULT '' NOT NULL,
+	"contact_phone" varchar(20) NOT NULL,
+	"address" varchar(255) NOT NULL,
+	"number_of_sites" integer NOT NULL,
 	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );

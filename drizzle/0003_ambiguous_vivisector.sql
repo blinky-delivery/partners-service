@@ -1,1 +1,0 @@
-ALTER TABLE "store_users" ALTER COLUMN "store_id" SET NOT NULL;

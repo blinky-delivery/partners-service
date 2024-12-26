@@ -1,7 +1,7 @@
 
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { StoreUsersModule } from './store-users/store-users.module';
+import { UsersModule } from './users/users.module';
 import { StoreModule } from './store/store.module';
 import * as Joi from 'joi';
 import { DatabaseModule } from './database/database.module';
@@ -21,17 +21,21 @@ import { AuthModule } from './auth/auth.module';
       }),
     }),
     ConfigModule.forRoot({
+      isGlobal: true,
       validationSchema: Joi.object({
+        SERVER_PORT: Joi.number().required(),
         POSTGRES_HOST: Joi.string().required(),
         POSTGRES_PORT: Joi.number().required(),
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_DB: Joi.string().required(),
         CLERK_SECRET_KEY: Joi.string().required(),
-      }),
+        CLERK_JWT_KEY: Joi.string().required(),
+      },
+      ),
     }),
     AuthModule,
-    StoreUsersModule,
+    UsersModule,
     StoreModule,
   ],
   controllers: [],

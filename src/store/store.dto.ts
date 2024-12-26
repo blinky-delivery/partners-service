@@ -1,7 +1,7 @@
-import { CreateStoreUserDto } from "src/store-users/store-users.dto"
+import { SigupUserDto } from "src/users/users.dto"
 
 export class SignupStoreDto {
-    user: CreateStoreUserDto
+    user: SigupUserDto
     name: string
     contactPhone: string
     numberOfSites: number
