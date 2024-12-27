@@ -120,7 +120,7 @@ export const storeApplications = pgTable('store_applications', {
     idCardFront: varchar('id_card_front', { length: 255 }).notNull(),
     idCardBack: varchar('id_card_back', { length: 255 }).notNull(),
     storeImage: varchar('store_image', { length: 255 }).notNull(),
-    isApproved: boolean('is_approved').default(false).notNull(),
+    isApproved: boolean('is_approved').notNull(),
     isUnderReview: boolean('is_under_review').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true })
         .default(sql`CURRENT_TIMESTAMP`)
