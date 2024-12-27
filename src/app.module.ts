@@ -6,6 +6,8 @@ import { StoreModule } from './store/store.module';
 import * as Joi from 'joi';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
+import { StorageModule } from './storage/storage.module';
+import { StoreApplicationsModule } from './store-applications/store-applications.module';
 
 @Module({
   imports: [
@@ -37,6 +39,8 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     UsersModule,
     StoreModule,
+    StorageModule,
+    StoreApplicationsModule,
   ],
   controllers: [],
   providers: [],

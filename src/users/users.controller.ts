@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, UseGuards } from '@nestjs/common';
 import { SigupUserDto } from './users.dto';
 import { UsersService } from './users.service';
 import { ClerkAuthGuard } from 'src/auth/clerk-auth.guard';
