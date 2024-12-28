@@ -106,11 +106,9 @@ export const storeSites = pgTable('store_sites', {
 // Store applications
 export const storeApplications = pgTable('store_applications', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-    userId: uuid('store_id')
-        .notNull()
-        .references(() => storeUsers.id, {
-            onDelete: 'cascade',
-        }),
+    userId: uuid('user_id').references(() => storeUsers.id, {
+        onDelete: 'set null',
+    }).notNull(),
     name: varchar('name', { length: 255 }).notNull(),
     contactPhone: varchar('contact_phone', { length: 20 }).notNull(),
     numberOfSites: integer('number_of_sites').notNull(),
@@ -134,7 +132,7 @@ export const storeApplications = pgTable('store_applications', {
 // Store files table
 export const storeFiles = pgTable('store_files', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-    storeId: uuid('store_id').notNull().references(() => storeUsers.storeId),
+    storeId: uuid('store_id').notNull().references(() => stores.id),
     type: varchar('type', { length: 50 }).notNull(),
     name: varchar('name', { length: 255 }).notNull(),
     path: text('path').notNull(),
