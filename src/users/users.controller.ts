@@ -7,21 +7,21 @@ import { RequestUser } from './users.types';
 
 @Controller('users')
 export class UsersController {
-
-    constructor(private readonly storeUsersService: UsersService) { }
-
     private readonly logger = new Logger(UsersController.name);
+
+    constructor(private readonly usersService: UsersService) { }
+
 
     @UseGuards(ClerkAuthGuard)
     @Get()
     async getUserById(@CurrentUser() user: RequestUser) {
         this.logger.debug(`GET /users/`);
-        return await this.storeUsersService.getByExtAuthId(user.clerkId);
+        return await this.usersService.getByExtAuthId(user.clerkId);
     }
 
     @Post('signup')
     async createUser(@Body() createUserDto: SigupUserDto) {
         this.logger.debug(`POST /users - Creating user with email: ${createUserDto.email}`);
-        return await this.storeUsersService.signup(createUserDto);
+        return await this.usersService.signup(createUserDto);
     }
 }
