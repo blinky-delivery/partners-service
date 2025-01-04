@@ -6,21 +6,20 @@ import { FileInterceptor } from "@nestjs/platform-express";
 export class StorageController {
     constructor(private readonly storageService: StorageService) { }
 
-    @Post(':storeId/upload/:type')
+    @Post('/upload')
     @UseInterceptors(FileInterceptor('file'))
     async uploadFile(
         @Param('storeId') storeId: string,
-        @Param('type') type: FileType,
         @UploadedFile(
             new ParseFilePipe({
                 validators: [
-                    new MaxFileSizeValidator({ maxSize: 10000 }),
+                    new MaxFileSizeValidator({ maxSize: 100000 }),
                     new FileTypeValidator({ fileType: 'image/jpeg' })
                 ]
             })
         ) file: Express.Multer.File
     ) {
-        const filePath = await this.storageService.uploadFile(storeId, file, type);
+        const filePath = await this.storageService.uploadFile(storeId, file);
         return { message: 'File uploaded successfully', path: filePath };
     }
 }

@@ -56,6 +56,14 @@ services:
       ADMIN_EMAIL: "admin@example.com"
       ADMIN_PASSWORD: "d1r3ctu5"
 
+      STORAGE_LOCATIONS: "s3"
+      STORAGE_S3_DRIVER: "s3"
+      STORAGE_S3_KEY: "AKIAW5BDRGLKIK6CDXOM"
+      STORAGE_S3_SECRET: "OYSjx+7fCbJhWuduUhxHihE9cmUkZmEWKG3/TeYQ"
+      STORAGE_S3_BUCKET: "blinky-bucket"
+      STORAGE_S3_REGION: "eu-central-1"
+      STORAGE_S3_ROOT: "directus"
+
     networks:
       - postgres
 

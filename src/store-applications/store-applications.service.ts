@@ -14,10 +14,27 @@ export class StoreApplicationsService {
         private readonly storeService: StoreService
     ) { }
 
-    async applyForStore(dto: CreateApplicationDto, userId: string) {
+
+    private async getUserByExtAuthId(extAuthId: string) {
+        const [user] = await this.drizzleService.db
+            .select()
+            .from(databaseSchema.storeUsers)
+            .where(eq(databaseSchema.storeUsers.extAuthId, extAuthId))
+            .limit(1);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        return user;
+    }
+
+    async applyForStore(dto: CreateApplicationDto, extAuthId: string) {
         this.logger.log('Checking for existing applications');
 
         try {
+            const user = await this.getUserByExtAuthId(extAuthId);
+            const userId = user.id;
             const existing = await this.drizzleService.db
                 .select()
                 .from(storeApplications)
@@ -30,10 +47,11 @@ export class StoreApplicationsService {
 
             this.logger.log('Submitting store application');
 
+
             const [result] = await this.drizzleService.db
                 .insert(databaseSchema.storeApplications)
                 .values({
-                    userId,
+                    userId: userId,
                     name: dto.name,
                     contactPhone: dto.contactPhone,
                     numberOfSites: dto.numberOfSites,

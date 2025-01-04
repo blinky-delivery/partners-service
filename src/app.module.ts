@@ -8,6 +8,8 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { StorageModule } from './storage/storage.module';
 import { StoreApplicationsModule } from './store-applications/store-applications.module';
+import { ParametersModule } from './parameters/parameters.module';
+import { DirectusModule } from './directus/directus.module';
 
 @Module({
   imports: [
@@ -33,6 +35,13 @@ import { StoreApplicationsModule } from './store-applications/store-applications
         POSTGRES_DB: Joi.string().required(),
         CLERK_SECRET_KEY: Joi.string().required(),
         CLERK_JWT_KEY: Joi.string().required(),
+        BLINKY_AWS_BUCKET_NAME: Joi.string().required(),
+        BLINKY_AWS_REGION: Joi.string().required(),
+        BLINKY_AWS_ACCESS_KEY_ID: Joi.string().required(),
+        BLINKY_AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+        DIRECTUS_URL: Joi.string().required(),
+        DIRECTUS_TOKEN: Joi.string().required(),
+        DIRECTUS_STORE_APPLICATIONS_FILES_FOLDER_ID: Joi.string().required(),
       },
       ),
     }),
@@ -41,6 +50,8 @@ import { StoreApplicationsModule } from './store-applications/store-applications
     StoreModule,
     StorageModule,
     StoreApplicationsModule,
+    ParametersModule,
+    DirectusModule,
   ],
   controllers: [],
   providers: [],

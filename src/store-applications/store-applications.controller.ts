@@ -3,6 +3,7 @@ import { StoreApplicationsService } from './store-applications.service';
 import { CreateApplicationDto } from './applications.dto';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import { ClerkAuthGuard } from 'src/auth/clerk-auth.guard';
+import { RequestUser } from 'src/users/users.types';
 
 @Controller('store-applications')
 export class StoreApplicationsController {
@@ -12,8 +13,8 @@ export class StoreApplicationsController {
 
     @UseGuards(ClerkAuthGuard)
     @Post('apply')
-    async applyForStore(@CurrentUser() userId: string, @Body() dto: CreateApplicationDto) {
-        this.logger.log(`Received store application for user ${userId}`);
-        return this.applicationsService.applyForStore(dto, userId)
+    async applyForStore(@CurrentUser() user: RequestUser, @Body() dto: CreateApplicationDto) {
+        this.logger.log(`Received store application for user ${user.clerkId}`);
+        return this.applicationsService.applyForStore(dto, user.clerkId)
     }
 }
