@@ -38,11 +38,11 @@ export class UsersService {
     }
 
     /**
-     * Fetch user by ID from the database
+     * Fetch user by ExternalAuthID from the database
      * @param id - User ID
      * @returns User record
      */
-    async getByExtAuthId(id: string) {
+    async getUserByExtAuthId(id: string) {
         this.logger.debug(`Fetching user by ExtAuthID: ${id}`);
 
         try {

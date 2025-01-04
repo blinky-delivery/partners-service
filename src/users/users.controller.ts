@@ -16,7 +16,7 @@ export class UsersController {
     @Get()
     async getUserById(@CurrentUser() user: RequestUser) {
         this.logger.debug(`GET /users/`);
-        return await this.usersService.getByExtAuthId(user.clerkId);
+        return await this.usersService.getUserByExtAuthId(user.clerkId);
     }
 
     @Post('signup')
