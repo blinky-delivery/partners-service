@@ -57,7 +57,7 @@ export const storeTypes = pgTable('store_types', {
 // Stores table
 export const stores = pgTable('stores', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-    applicationId: uuid('application_id').references(() => storeApplications.id).notNull(),
+    applicationId: varchar('application_id').notNull(),
     storeTypeId: integer('store_type_id')
         .notNull()
         .references(() => storeTypes.id),
@@ -103,31 +103,6 @@ export const storeSites = pgTable('store_sites', {
         .notNull(),
 });
 
-// Store applications
-export const storeApplications = pgTable('store_applications', {
-    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-    userId: uuid('user_id').references(() => storeUsers.id, {
-        onDelete: 'set null',
-    }).notNull(),
-    name: varchar('name', { length: 255 }).notNull(),
-    contactPhone: varchar('contact_phone', { length: 20 }).notNull(),
-    numberOfSites: integer('number_of_sites').notNull(),
-    storeType: integer('store_type').notNull(),
-    city: integer('city').notNull(),
-    address: text('address').notNull(),
-    idCardFront: varchar('id_card_front', { length: 255 }).notNull(),
-    idCardBack: varchar('id_card_back', { length: 255 }).notNull(),
-    storeImage: varchar('store_image', { length: 255 }).notNull(),
-    isApproved: boolean('is_approved').notNull(),
-    isUnderReview: boolean('is_under_review').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true })
-        .default(sql`CURRENT_TIMESTAMP`)
-        .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-        .default(sql`CURRENT_TIMESTAMP`)
-        .notNull(),
-});
-
 
 // Store files table
 export const storeFiles = pgTable('store_files', {
@@ -149,6 +124,5 @@ export const databaseSchema = {
     storeTypes,
     stores,
     storeSites,
-    storeApplications,
     storeFiles,
 };
