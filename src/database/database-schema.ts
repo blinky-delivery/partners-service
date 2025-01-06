@@ -2,6 +2,11 @@
 import { pgTable, uuid, varchar, timestamp, serial, boolean, integer, text, doublePrecision } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
+// Roles table
+export const roles = pgTable('roles', {
+    name: varchar('name', { length: 50 }).primaryKey().notNull().unique(), // Using name as the primary key
+});
+
 export const storeUsers = pgTable('store_users', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
     extAuthId: varchar('ext_auth_id', { length: 255 }).notNull(),
@@ -18,7 +23,7 @@ export const storeUsers = pgTable('store_users', {
         .notNull(),
 });
 
-export const customers = pgTable('customers', {
+export const store_customers = pgTable('store_customers', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
     extAuthId: varchar('ext_auth_id', { length: 255 }),
     email: varchar('email', { length: 255 }).notNull().unique(),
@@ -33,20 +38,12 @@ export const customers = pgTable('customers', {
 });
 
 
-// Roles table
-export const roles = pgTable('roles', {
-    id: uuid('id').primaryKey(),
-    name: varchar('name', { length: 50 }).notNull().unique(), // e.g., 'admin', 'owner', 'manager', 'driver'
-});
-
-// Cities table
 export const cities = pgTable('cities', {
     id: serial('id').primaryKey(),
     name: varchar('name', { length: 255 }).notNull(),
     sort: integer('sort').default(0),
 });
 
-// Store Types table
 export const storeTypes = pgTable('store_types', {
     id: serial('id').primaryKey(),
     name: varchar('name', { length: 50 }).notNull().unique(),
@@ -54,7 +51,7 @@ export const storeTypes = pgTable('store_types', {
     sort: integer('sort').default(0),
 });
 
-// Stores table
+
 export const stores = pgTable('stores', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
     applicationId: varchar('application_id').notNull(),
@@ -77,7 +74,7 @@ export const stores = pgTable('stores', {
         .notNull(),
 });
 
-// Store Sites table
+
 export const storeSites = pgTable('store_sites', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
     storeId: uuid('store_id')
@@ -103,26 +100,12 @@ export const storeSites = pgTable('store_sites', {
         .notNull(),
 });
 
-
-// Store files table
-export const storeFiles = pgTable('store_files', {
-    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-    storeId: uuid('store_id').notNull().references(() => stores.id),
-    type: varchar('type', { length: 50 }).notNull(),
-    name: varchar('name', { length: 255 }).notNull(),
-    path: text('path').notNull(),
-    size: integer('size').notNull(),
-    uploadedAt: timestamp('uploaded_at').defaultNow().notNull(),
-});
-
-
 export const databaseSchema = {
     storeUsers,
-    customers,
+    customers: store_customers,
     roles,
     cities,
     storeTypes,
     stores,
     storeSites,
-    storeFiles,
 };

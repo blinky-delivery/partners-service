@@ -1,5 +1,5 @@
 export interface StoreApplication {
-    id: number;
+    id: string;
     user_id: string;
     store_type_id: number;
     city_id: number;
@@ -10,6 +10,8 @@ export interface StoreApplication {
     id_card_front: string;
     id_card_back: string;
     store_image: string;
+    under_review: boolean;
+    approved: boolean;
 }
 
 export interface DirectusSchema {

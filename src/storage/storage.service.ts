@@ -2,6 +2,8 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
+import { DirectusService } from 'src/directus/directus.service';
+import { uploadFiles } from '@directus/sdk';
 
 // Enums for file types
 export enum FileType {
@@ -11,6 +13,10 @@ export enum FileType {
     OTHER = 'OTHER'
 }
 
+export enum DirectusFolder {
+    store_applications = '2f748fa2-aeea-4df6-b950-9ac9144750aa',
+}
+
 
 @Injectable()
 export class StorageService {
@@ -18,7 +24,10 @@ export class StorageService {
     private s3Client: S3Client;
     private bucketName: string;
 
-    constructor(private configService: ConfigService) {
+    constructor(
+        private readonly configService: ConfigService,
+        private readonly directusService: DirectusService,
+    ) {
         this.bucketName = this.configService.get<string>('BLINKY_AWS_BUCKET_NAME');
         this.s3Client = new S3Client({
             region: this.configService.get<string>('BLINKY_AWS_REGION'),
@@ -47,5 +56,12 @@ export class StorageService {
             throw new BadRequestException('File upload failed');
         }
     }
-}
 
+    async uploadFileToDirectus(file: Express.Multer.File, folder: DirectusFolder) {
+        const formData = new FormData()
+        const blob = new Blob([file.buffer], { type: file.mimetype });
+        formData.append('folder', folder)
+        formData.append('file', blob, file.originalname);
+        return this.directusService.client.request(uploadFiles(formData))
+    }
+}

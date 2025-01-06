@@ -5,7 +5,4 @@ export class CreateApplicationDto {
     storeType: number
     city: number
     address: string
-    idCardFront: string
-    idCardBack: string
-    storeImage: string
 }

@@ -1,5 +1,5 @@
 import { Controller, FileTypeValidator, MaxFileSizeValidator, Param, ParseFilePipe, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
-import { FileType, StorageService } from "./storage.service";
+import { DirectusFolder, FileType, StorageService } from "./storage.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 
 @Controller('storage')
@@ -19,7 +19,7 @@ export class StorageController {
             })
         ) file: Express.Multer.File
     ) {
-        const filePath = await this.storageService.uploadFile(storeId, file);
+        const filePath = await this.storageService.uploadFileToDirectus(file, DirectusFolder.store_applications);
         return { message: 'File uploaded successfully', path: filePath };
     }
 }
