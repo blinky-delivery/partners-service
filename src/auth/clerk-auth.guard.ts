@@ -29,7 +29,7 @@ export class ClerkAuthGuard implements CanActivate {
 
         try {
             // Verify and decode the token
-            const token = request.headers.authorization?.split(' ')[1]; // Extract token from "Bearer <token>"
+            const token = request.cookies['__session'];
             if (!token) {
                 throw new UnauthorizedException('Authorization token is missing');
             }

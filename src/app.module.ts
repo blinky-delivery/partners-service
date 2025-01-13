@@ -10,6 +10,8 @@ import { StorageModule } from './storage/storage.module';
 import { StoreApplicationsModule } from './store-applications/store-applications.module';
 import { ParametersModule } from './parameters/parameters.module';
 import { DirectusModule } from './directus/directus.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseFormatInterceptor } from './response/response.interceptor';
 
 @Module({
   imports: [
@@ -54,6 +56,11 @@ import { DirectusModule } from './directus/directus.module';
     DirectusModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseFormatInterceptor,
+    }
+  ],
 })
 export class AppModule { }
