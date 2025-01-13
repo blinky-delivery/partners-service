@@ -1,4 +1,4 @@
-import { Body, Controller, Logger, UseGuards, Post, UseInterceptors, UploadedFiles, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Logger, UseGuards, Post, UseInterceptors, UploadedFiles, UploadedFile, BadRequestException, Get } from '@nestjs/common';
 import { StoreApplicationsService } from './store-applications.service';
 import { CreateApplicationDto } from './applications.dto';
 import { CurrentUser } from 'src/auth/current-user.decorator';
@@ -23,12 +23,12 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: Function) => {
 };
 
 @Controller('store-applications')
+@UseGuards(ClerkAuthGuard)
 export class StoreApplicationsController {
     private readonly logger = new Logger(StoreApplicationsController.name);
 
     constructor(private readonly applicationsService: StoreApplicationsService) { }
 
-    @UseGuards(ClerkAuthGuard)
     @Post('apply')
     @UseInterceptors(
         FileFieldsInterceptor([
@@ -53,4 +53,10 @@ export class StoreApplicationsController {
             store_image: files.store_image[0],
         });
     }
+
+    @Get()
+    async getApplications(@CurrentUser() user: RequestUser) {
+        return this.applicationsService.getUserApplications(user.clerkId);
+    }
+
 }

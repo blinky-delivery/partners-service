@@ -90,4 +90,21 @@ export class StoreApplicationsService {
             store_image: store_image_file_id
         }))
     }
+
+    async getUserApplications(extAuthId: string) {
+        const user = await this.userService.getUserByExtAuthId(extAuthId);
+        this.logger.log(`Fetching applications for user with ID: ${user.id}`);
+        try {
+            const applications = await this.directusService.client.request(readItems('store_applications', {
+                filter: {
+                    user_id: { _eq: user.id }
+                }
+            }));
+            this.logger.log(`Found ${applications.length} applications for user with ID: ${extAuthId}`);
+            return applications;
+        } catch (error) {
+            this.logger.error(`Failed to fetch applications for user with ID: ${extAuthId}`, error.stack);
+            throw new InternalServerErrorException('Failed to fetch user applications');
+        }
+    }
 }
