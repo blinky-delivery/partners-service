@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { databaseSchema } from 'src/database/database-schema';
 import { eq } from 'drizzle-orm';
@@ -66,7 +66,11 @@ export class StoreService {
 
             return store;
         } catch (error) {
-            this.logger.error(`Failed to fetch store with ID: ${storeId}`, error.stack);
+            if (error instanceof Error) {
+                this.logger.error(`Failed to fetch store with ID: ${storeId}`, error.stack);
+            } else {
+                this.logger.error(`Failed to fetch store with ID: ${storeId}`);
+            }
             throw new Error('Failed to fetch store');
         }
     }
@@ -85,8 +89,74 @@ export class StoreService {
 
             return store;
         } catch (error) {
-            this.logger.error(`Failed to fetch store for user with extAuthId: ${extAuthId}`, error.stack);
+            if (error instanceof Error) {
+                this.logger.error(`Failed to fetch store for user with extAuthId: ${extAuthId}`, error.stack);
+            } else {
+                this.logger.error(`Failed to fetch store for user with extAuthId: ${extAuthId}`);
+            }
             throw new Error('Failed to fetch store');
+        }
+    }
+
+    async getStoreSites(storeId: string, extAuthId: string) {
+        this.logger.log(`Fetching sites for store with ID: ${storeId} for user with extAuthId: ${extAuthId}`);
+        try {
+            const user = await this.userService.getUserByExtAuthId(extAuthId);
+            if (storeId !== user.storeId) {
+                this.logger.warn(`User with ID: ${user.id} does not belong to store with ID: ${storeId}`);
+                return null;
+            }
+
+            const storeSites = await this.drizzleService.db
+                .select()
+                .from(databaseSchema.storeSites)
+                .where(eq(databaseSchema.storeSites.storeId, storeId));
+
+            return storeSites;
+        } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error(`Failed to fetch store sites for store with ID ${storeId} and user with extAuthId: ${extAuthId}`, error.stack);
+            } else {
+                this.logger.error(`Failed to fetch store sites for store with ID ${storeId} and user with extAuthId: ${extAuthId}`);
+            }
+            throw new Error('Failed to fetch store sites');
+        }
+    }
+
+    async isUserStoreOwnerByExtAuthId(storeId: string, extAuthId: string): Promise<boolean> {
+        this.logger.log(`Checking if user with extAuthId: ${extAuthId} owns store with ID: ${storeId}`);
+        try {
+            const user = await this.userService.getUserByExtAuthId(extAuthId);
+            if (storeId !== user.storeId) {
+                this.logger.warn(`User with ID: ${user.id} does not own store with ID: ${storeId}`);
+                throw new UnauthorizedException('Forbidden');
+            }
+            return true;
+        } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error(`Failed to check store ownership for user with extAuthId: ${extAuthId}`, error.stack);
+            } else {
+                this.logger.error(`Failed to check store ownership for user with extAuthId: ${extAuthId}`);
+            }
+            throw new Error('Failed to check store ownership');
+        }
+    }
+
+    async checkUserStoreOwnership(storeId: string, extAuthId: string): Promise<void> {
+        this.logger.log(`Checking store ownership for store ID: ${storeId} and user with extAuthId: ${extAuthId}`);
+        try {
+            const user = await this.userService.getUserByExtAuthId(extAuthId);
+            if (storeId !== user.storeId) {
+                this.logger.warn(`User with ID: ${user.id} does not own store with ID: ${storeId}`);
+                throw new UnauthorizedException('Forbidden');
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error(`Failed to check store ownership for user with extAuthId: ${extAuthId}`, error.stack);
+            } else {
+                this.logger.error(`Failed to check store ownership for user with extAuthId: ${extAuthId}`);
+            }
+            throw new Error('Failed to check store ownership');
         }
     }
 

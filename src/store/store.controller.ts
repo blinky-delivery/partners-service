@@ -14,9 +14,16 @@ export class StoreController {
 
 
     @Get('user-store/:store_id')
-    async getUserStore(@CurrentUser() user: RequestUser, @Param('store_id') storeId: string) {
+    async getUserStore(@Param('store_id') storeId: string, @CurrentUser() user: RequestUser) {
         this.logger.debug(`GET /store/user-store/${storeId}`);
         return await this.storeService.getUserStore(storeId, user.clerkId);
     }
+
+    @Get('user-store/sites/:store_id')
+    async getStoreSites(@Param('store_id') storeId: string, @CurrentUser() user: RequestUser) {
+        this.logger.debug(`GET /store/user-store/sites/${storeId}`)
+        return await this.storeService.getStoreSites(storeId, user.clerkId)
+    }
+
 
 }

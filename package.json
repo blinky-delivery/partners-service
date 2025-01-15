@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "db:seed": "ts-node ./src/database/seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.717.0",
@@ -34,7 +35,8 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
     "drizzle-kit": "^0.30.0",
-    "drizzle-orm": "^0.38.0",
+    "drizzle-orm": "^0.38.3",
+    "drizzle-seed": "^0.3.0",
     "joi": "^17.13.3",
     "pg": "^8.13.1",
     "reflect-metadata": "^0.2.0",
