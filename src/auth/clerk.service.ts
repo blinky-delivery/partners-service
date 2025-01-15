@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ClerkService implements OnModuleInit {
-    private clerkClient: ClerkClient;
+    private clerkClient!: ClerkClient;
 
     constructor(private readonly configService: ConfigService) { }
 

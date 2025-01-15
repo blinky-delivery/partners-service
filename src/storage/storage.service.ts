@@ -28,12 +28,12 @@ export class StorageService {
         private readonly configService: ConfigService,
         private readonly directusService: DirectusService,
     ) {
-        this.bucketName = this.configService.get<string>('BLINKY_AWS_BUCKET_NAME');
+        this.bucketName = this.configService.get<string>('BLINKY_AWS_BUCKET_NAME')!;
         this.s3Client = new S3Client({
-            region: this.configService.get<string>('BLINKY_AWS_REGION'),
+            region: this.configService.get<string>('BLINKY_AWS_REGION')!,
             credentials: {
-                accessKeyId: this.configService.get<string>('BLINKY_AWS_ACCESS_KEY_ID'),
-                secretAccessKey: this.configService.get<string>('BLINKY_AWS_SECRET_ACCESS_KEY'),
+                accessKeyId: this.configService.get<string>('BLINKY_AWS_ACCESS_KEY_ID')!,
+                secretAccessKey: this.configService.get<string>('BLINKY_AWS_SECRET_ACCESS_KEY')!,
             },
         });
     }

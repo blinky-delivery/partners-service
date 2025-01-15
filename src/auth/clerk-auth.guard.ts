@@ -17,7 +17,7 @@ export class ClerkAuthGuard implements CanActivate {
     constructor(
         private readonly configService: ConfigService,
     ) {
-        this.jwtKey = this.configService.get<string>('CLERK_JWT_KEY');
+        this.jwtKey = this.configService.get<string>('CLERK_JWT_KEY')!;
         if (!this.jwtKey) {
             throw new Error('CLERK_JWT_KEY is not set in environment variables');
         }

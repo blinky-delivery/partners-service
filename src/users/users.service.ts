@@ -11,7 +11,7 @@ interface CreateUserProps {
     email: string;
     password: string;
     fullName: string;
-    phoneNumber?: string;
+    phoneNumber: string;
     role: UserRole;
 }
 

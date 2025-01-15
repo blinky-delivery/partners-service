@@ -12,7 +12,7 @@ export class DirectusService {
         const directusUrl = this.configService.get<string>('DIRECTUS_URL');
         const directusToken = this.configService.get<string>('DIRECTUS_TOKEN');
         console.log(directusUrl, directusToken);
-        this.client = createDirectus(directusUrl).with(staticToken(directusToken)).with(rest())
+        this.client = createDirectus(directusUrl!).with(staticToken(directusToken!)).with(rest())
     }
 
 }

@@ -103,7 +103,9 @@ export class StoreApplicationsService {
             this.logger.log(`Found ${applications.length} applications for user with ID: ${extAuthId}`);
             return applications;
         } catch (error) {
-            this.logger.error(`Failed to fetch applications for user with ID: ${extAuthId}`, error.stack);
+            if (error instanceof Error) {
+                this.logger.error(`Failed to fetch applications for user with ID: ${extAuthId}`, error.stack);
+            }
             throw new InternalServerErrorException('Failed to fetch user applications');
         }
     }
