@@ -1,8 +1,14 @@
 
 import { ConfigurableModuleBuilder } from '@nestjs/common';
 import { DatabaseOptions } from './database-options';
+import { Pool } from 'pg';
 
-export const CONNECTION_POOL = 'CONNECTION_POOL';
+export const CONNECTION_POOLS = 'CONNECTION_POOLS';
+
+export interface ConnectionPools {
+    partnersDbPool: Pool,
+    customersDbPool: Pool
+}
 
 export const {
     ConfigurableModuleClass: ConfigurableDatabaseModule,

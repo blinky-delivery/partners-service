@@ -160,7 +160,7 @@ export const menuCategories = pgTable('menu_categories', {
     sort: integer("sort").notNull(),
 })
 
-export const databaseSchema = {
+export const partnersSchema = {
     storeUsers,
     customers: store_customers,
     roles,

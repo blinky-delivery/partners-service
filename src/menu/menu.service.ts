@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
-import { databaseSchema } from 'src/database/database-schema';
+import { partnersSchema } from 'src/database/partners.database-schema';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { MenuVersionStatus, MenuWithVersionResponse } from './menu.types';
 
@@ -17,7 +17,7 @@ export class MenuService {
 
     async getMenusByStoreId(storeId: string) {
         try {
-            const menus = await this.drizzleService.db.select().from(databaseSchema.menus).where(eq(databaseSchema.menus.storeId, storeId))
+            const menus = await this.drizzleService.partnersDb.select().from(partnersSchema.menus).where(eq(partnersSchema.menus.storeId, storeId))
             return menus
         } catch (error) {
         }
@@ -25,7 +25,7 @@ export class MenuService {
 
     async getMenuById(menuId: string) {
         try {
-            const menus = (await this.drizzleService.db.select().from(databaseSchema.menus).where(eq(databaseSchema.menus.id, menuId)))
+            const menus = (await this.drizzleService.partnersDb.select().from(partnersSchema.menus).where(eq(partnersSchema.menus.id, menuId)))
             const menu = menus.pop()
             if (!menu) {
                 throw new NotFoundException(`Menu with id ${menuId} not found`)
@@ -42,8 +42,8 @@ export class MenuService {
     }
 
     async createDraftMenu(params: CreateDraftMenuParams) {
-        const menuWithDraftVersion = await this.drizzleService.db.transaction(async (tx) => {
-            const [menu] = await tx.insert(databaseSchema.menus)
+        const menuWithDraftVersion = await this.drizzleService.partnersDb.transaction(async (tx) => {
+            const [menu] = await tx.insert(partnersSchema.menus)
                 .values({
                     storeId: params.storeId,
                 }).returning()
@@ -55,7 +55,7 @@ export class MenuService {
             }
 
             const [menuDraftVersion] = await tx
-                .insert(databaseSchema.menuVersions)
+                .insert(partnersSchema.menuVersions)
                 .values({
                     menu_id: menu.id,
                     name: params.name,
@@ -69,7 +69,7 @@ export class MenuService {
                 throw new InternalServerErrorException('Failed to insert menu draft version')
             }
 
-            const [menuWithDraftVersion] = await tx.update(databaseSchema.menus).set({
+            const [menuWithDraftVersion] = await tx.update(partnersSchema.menus).set({
                 inProgressMenuVersionId: menuDraftVersion.id
             }).returning()
 
@@ -85,7 +85,7 @@ export class MenuService {
 
         })
 
-        const createdMenu = await this.drizzleService.db.query.menus.findFirst({
+        const createdMenu = await this.drizzleService.partnersDb.query.menus.findFirst({
             where: (menus, { eq }) => eq(menus.id, menuWithDraftVersion.id),
             with: {
                 inProgressMenuVersion: true,

@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException, InternalServerErrorException, BadRequestException, ConflictException } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
-import { databaseSchema } from 'src/database/database-schema';
+import { partnersSchema } from 'src/database/partners.database-schema';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { SigupUserDto } from './users.dto';
 import { ClerkService } from 'src/auth/clerk.service';
@@ -28,10 +28,10 @@ export class UsersService {
     * Check if a user with the given email already exists in the database
     */
     private async userExistsInDatabase(email: string): Promise<boolean> {
-        const existingUser = await this.drizzleService.db
+        const existingUser = await this.drizzleService.partnersDb
             .select()
-            .from(databaseSchema.storeUsers)
-            .where(eq(databaseSchema.storeUsers.email, email))
+            .from(partnersSchema.storeUsers)
+            .where(eq(partnersSchema.storeUsers.email, email))
             .limit(1);
 
         return existingUser.length > 0;
@@ -46,10 +46,10 @@ export class UsersService {
         this.logger.debug(`Fetching user by ExtAuthID: ${id}`);
 
         try {
-            const users = await this.drizzleService.db
+            const users = await this.drizzleService.partnersDb
                 .select()
-                .from(databaseSchema.storeUsers)
-                .where(eq(databaseSchema.storeUsers.extAuthId, id));
+                .from(partnersSchema.storeUsers)
+                .where(eq(partnersSchema.storeUsers.extAuthId, id));
 
             const user = users.pop();
 
@@ -104,8 +104,8 @@ export class UsersService {
 
         // Insert user into database
         try {
-            const [createdUser] = await this.drizzleService.db
-                .insert(databaseSchema.storeUsers)
+            const [createdUser] = await this.drizzleService.partnersDb
+                .insert(partnersSchema.storeUsers)
                 .values({
                     extAuthId: clerkUser.id,
                     email: props.email,

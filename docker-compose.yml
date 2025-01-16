@@ -1,14 +1,42 @@
 version: "3"
 services:
-  postgres:
-    container_name: postgres-nestjs-drizzle
+
+  partners_db:
+    container_name: postgres-partners-db
     image: postgis/postgis:16-3.5
     ports:
       - "5432:5432"
     volumes:
-      - /data/postgres:/data/postgres
-    env_file:
-      - docker.env
+      - /data/postgres-partners-db:/data/postgres
+
+    environment:
+      POSTGRES_DB: partners_db
+      POSTGRES_USER: partners_user
+      POSTGRES_PASSWORD: partners_password
+
+    networks:
+      - postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready", "--host=localhost", "--username=directus" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_interval: 5s
+      start_period: 30s
+
+  customers_db:
+    container_name: postgres-customers-db
+    image: postgis/postgis:16-3.5
+    ports:
+      - "5433:5432"
+    volumes:
+      - /data/postgres-customer-db:/data/postgres
+
+    environment:
+      POSTGRES_DB: customers_db
+      POSTGRES_USER: customers_user
+      POSTGRES_PASSWORD: customers_password
+
     networks:
       - postgres
     healthcheck:
@@ -21,15 +49,18 @@ services:
 
   pgadmin:
     links:
-      - postgres:postgres
-    container_name: pgadmin-nestjs-drizzle
+      - partners_db:postgres
+    container_name: pgadmin
     image: dpage/pgadmin4:8.6
     ports:
       - "8080:80"
     volumes:
       - /data/pgadmin:/root/.pgadmin
-    env_file:
-      - docker.env
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+
     networks:
       - postgres
 
@@ -41,17 +72,17 @@ services:
       - ./uploads:/directus/uploads
       - ./extensions:/directus/extensions
     depends_on:
-      postgres:
+      partners_db:
         condition: service_healthy
     environment:
       SECRET: "replace-with-secure-random-value"
 
       DB_CLIENT: "pg"
-      DB_HOST: "postgres"
+      DB_HOST: "partners_db"
       DB_PORT: "5432"
-      DB_DATABASE: "nestjs"
-      DB_USER: "admin"
-      DB_PASSWORD: "admin"
+      DB_DATABASE: "partners_db"
+      DB_USER: "partners_user"
+      DB_PASSWORD: "partners_password"
 
       ADMIN_EMAIL: "admin@example.com"
       ADMIN_PASSWORD: "d1r3ctu5"

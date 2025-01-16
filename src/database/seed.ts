@@ -1,7 +1,9 @@
 import { drizzle } from "drizzle-orm/node-postgres"
 import { Pool } from "pg"
-import { databaseSchema, storeSites } from "./database-schema"
+import { partnersSchema } from "./partners.database-schema"
 import { reset, seed } from "drizzle-seed"
+import { ConfigService } from "@nestjs/config"
+import 'dotenv/config';
 
 const extAuthId1 = 'user_2rAQMUtwOkHdOqRuqI7w3qcOXEG'
 const storeUserId1 = '0c989fad-f50a-4344-ab3b-aea1a2b07fc6'
@@ -13,27 +15,29 @@ const storeSiteId1 = '6de5ea6f-72c4-4d45-8cb6-0967bfe724f2'
 const storeSiteId2 = 'b7a87857-50c6-4f06-9bf2-13defdf19f51'
 
 async function main() {
+    const configService = new ConfigService();
+
     const db = drizzle(
         new Pool(
             {
-                host: 'localhost',
-                user: 'admin',
-                port: 5432,
-                password: 'admin',
-                database: 'nestjs'
+                host: configService.get<string>('PARTNERS_DB_HOST')!,
+                port: configService.get<number>('PARTNERS_DB_PORT')!,
+                user: configService.get<string>('PARTNERS_DB_USER')!,
+                password: configService.get<string>('PARTNERS_DB_PASSWORD')!,
+                database: configService.get<string>('PARTNERS_DB_NAME')!,
             }
         ),
-        { schema: databaseSchema }
+        { schema: partnersSchema }
     )
-    await reset(db, databaseSchema);
+    await reset(db, partnersSchema);
 
     await seed(db,
         {
-            storeTypes: databaseSchema.storeTypes,
-            users: databaseSchema.storeUsers,
-            stores: databaseSchema.stores,
-            cities: databaseSchema.cities,
-            storeSites: databaseSchema.storeSites,
+            storeTypes: partnersSchema.storeTypes,
+            users: partnersSchema.storeUsers,
+            stores: partnersSchema.stores,
+            cities: partnersSchema.cities,
+            storeSites: partnersSchema.storeSites,
         }
     ).refine((f) => ({
         storeTypes: {

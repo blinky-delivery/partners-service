@@ -19,23 +19,40 @@ import { MenuModule } from './menu/menu.module';
     DatabaseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        host: configService.get('POSTGRES_HOST')!,
-        port: configService.get('POSTGRES_PORT')!,
-        user: configService.get('POSTGRES_USER')!,
-        password: configService.get('POSTGRES_PASSWORD')!,
-        database: configService.get('POSTGRES_DB')!,
-      }),
+      useFactory: (configService: ConfigService) => (
+        {
+          partnersDatabase: {
+            host: configService.get('PARTNERS_DB_HOST')!,
+            port: configService.get('PARTNERS_DB_PORT')!,
+            user: configService.get('PARTNERS_DB_USER')!,
+            password: configService.get('PARTNERS_DB_PASSWORD')!,
+            database: configService.get('PARTNERS_DB_NAME')!,
+          },
+          customersDatabase: {
+            host: configService.get('CUSTOMERS_DB_HOST')!,
+            port: configService.get('CUSTOMERS_DB_PORT')!,
+            user: configService.get('CUSTOMERS_DB_USER')!,
+            password: configService.get('CUSTOMERS_DB_PASSWORD')!,
+            database: configService.get('CUSTOMERS_DB_NAME')!,
+          },
+
+        }
+      ),
     }),
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
         SERVER_PORT: Joi.number().required(),
-        POSTGRES_HOST: Joi.string().required(),
-        POSTGRES_PORT: Joi.number().required(),
-        POSTGRES_USER: Joi.string().required(),
-        POSTGRES_PASSWORD: Joi.string().required(),
-        POSTGRES_DB: Joi.string().required(),
+        PARTNERS_DB_HOST: Joi.string().required(),
+        PARTNERS_DB_PORT: Joi.number().required(),
+        PARTNERS_DB_USER: Joi.string().required(),
+        PARTNERS_DB_PASSWORD: Joi.string().required(),
+        PARTNERS_DB_NAME: Joi.string().required(),
+        CUSTOMERS_DB_HOST: Joi.string().required(),
+        CUSTOMERS_DB_PORT: Joi.number().required(),
+        CUSTOMERS_DB_USER: Joi.string().required(),
+        CUSTOMERS_DB_PASSWORD: Joi.string().required(),
+        CUSTOMERS_DB_NAME: Joi.string().required(),
         CLERK_SECRET_KEY: Joi.string().required(),
         CLERK_JWT_KEY: Joi.string().required(),
         BLINKY_AWS_BUCKET_NAME: Joi.string().required(),

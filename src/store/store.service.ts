@@ -1,6 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { DrizzleService } from 'src/database/drizzle.service';
-import { databaseSchema } from 'src/database/database-schema';
+import { partnersSchema } from 'src/database/partners.database-schema';
 import { eq } from 'drizzle-orm';
 import { UsersService } from 'src/users/users.service';
 
@@ -29,8 +29,8 @@ export class StoreService {
     async create(params: CreateStoreParams) {
         this.logger.log(`Creating a store with application ID :${params.applicationId}`);
         try {
-            const [createdStore] = await this.drizzleService.db
-                .insert(databaseSchema.stores)
+            const [createdStore] = await this.drizzleService.partnersDb
+                .insert(partnersSchema.stores)
                 .values({
                     ownerId: params.userId,
                     applicationId: params.applicationId,
@@ -54,10 +54,10 @@ export class StoreService {
     async getStoreById(storeId: string) {
         this.logger.log(`Fetching store with ID: ${storeId}`);
         try {
-            const stores = await this.drizzleService.db
+            const stores = await this.drizzleService.partnersDb
                 .select()
-                .from(databaseSchema.stores)
-                .where(eq(databaseSchema.stores.id, storeId));
+                .from(partnersSchema.stores)
+                .where(eq(partnersSchema.stores.id, storeId));
             const store = stores.pop();
 
             if (!store) {
@@ -107,10 +107,10 @@ export class StoreService {
                 return null;
             }
 
-            const storeSites = await this.drizzleService.db
+            const storeSites = await this.drizzleService.partnersDb
                 .select()
-                .from(databaseSchema.storeSites)
-                .where(eq(databaseSchema.storeSites.storeId, storeId));
+                .from(partnersSchema.storeSites)
+                .where(eq(partnersSchema.storeSites.storeId, storeId));
 
             return storeSites;
         } catch (error) {
