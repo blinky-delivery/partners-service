@@ -62,7 +62,8 @@ async function main() {
             count: 1,
             columns: {
                 id: f.valuesFromArray({ values: [storeUserId1] }),
-                extAuthId: f.valuesFromArray({ values: [extAuthId1] })
+                extAuthId: f.valuesFromArray({ values: [extAuthId1] }),
+                storeId: f.valuesFromArray({ values: [storeId1] })
             }
         },
         stores: {

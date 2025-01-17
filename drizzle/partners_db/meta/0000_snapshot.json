@@ -1,5 +1,5 @@
 {
-  "id": "79e7d1aa-0787-4c88-bc0d-bb1e1c17437d",
+  "id": "cf4dbedd-7e44-4b5d-b3ea-047e32152a92",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -47,8 +47,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "menu_version_id": {
-          "name": "menu_version_id",
+        "menu_id": {
+          "name": "menu_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -60,6 +60,24 @@
           "notNull": true,
           "default": "''"
         },
+        "version_status": {
+          "name": "version_status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "changed_fields": {
+          "name": "changed_fields",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
         "sort": {
           "name": "sort",
           "type": "integer",
@@ -69,81 +87,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "menu_categories_menu_version_id_menu_versions_id_fk": {
-          "name": "menu_categories_menu_version_id_menu_versions_id_fk",
+        "menu_categories_menu_id_menus_id_fk": {
+          "name": "menu_categories_menu_id_menus_id_fk",
           "tableFrom": "menu_categories",
-          "tableTo": "menu_versions",
-          "columnsFrom": [
-            "menu_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.menu_versions": {
-      "name": "menu_versions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "menu_id": {
-          "name": "menu_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "version_status": {
-          "name": "version_status",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "menu_versions_menu_id_menus_id_fk": {
-          "name": "menu_versions_menu_id_menus_id_fk",
-          "tableFrom": "menu_versions",
           "tableTo": "menus",
           "columnsFrom": [
             "menu_id"
@@ -178,15 +124,45 @@
           "primaryKey": false,
           "notNull": true
         },
-        "in_progress_menu_version_id": {
-          "name": "in_progress_menu_version_id",
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "store_site_id": {
+          "name": "store_site_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "published_menu_version_id": {
-          "name": "published_menu_version_id",
-          "type": "uuid",
+        "version_status": {
+          "name": "version_status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "changed_fields": {
+          "name": "changed_fields",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         },
@@ -213,6 +189,19 @@
           "tableTo": "stores",
           "columnsFrom": [
             "store_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "menus_store_site_id_store_sites_id_fk": {
+          "name": "menus_store_site_id_store_sites_id_fk",
+          "tableFrom": "menus",
+          "tableTo": "store_sites",
+          "columnsFrom": [
+            "store_site_id"
           ],
           "columnsTo": [
             "id"
@@ -365,66 +354,6 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.store_sites_to_menus": {
-      "name": "store_sites_to_menus",
-      "schema": "",
-      "columns": {
-        "store_site_id": {
-          "name": "store_site_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "menu_id": {
-          "name": "menu_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "store_sites_to_menus_store_site_id_store_sites_id_fk": {
-          "name": "store_sites_to_menus_store_site_id_store_sites_id_fk",
-          "tableFrom": "store_sites_to_menus",
-          "tableTo": "store_sites",
-          "columnsFrom": [
-            "store_site_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "store_sites_to_menus_menu_id_menus_id_fk": {
-          "name": "store_sites_to_menus_menu_id_menus_id_fk",
-          "tableFrom": "store_sites_to_menus",
-          "tableTo": "menus",
-          "columnsFrom": [
-            "menu_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "store_sites_to_menus_store_site_id_menu_id_pk": {
-          "name": "store_sites_to_menus_store_site_id_menu_id_pk",
-          "columns": [
-            "store_site_id",
-            "menu_id"
-          ]
-        }
-      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},

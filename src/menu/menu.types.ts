@@ -1,11 +1,8 @@
-export enum MenuVersionStatus {
+export enum Menutatus {
     DRAFT = 'DRAFT',
     REVIEW = 'REVIEW',
     APPROVED = 'APPROVED',
-    ARCHIVED = 'ARCHIVED'
+    ARCHIVED = 'ARCHIVED',
+    PUBLISHED = 'PUBLISHED'
 }
 
-export interface MenuWithVersionResponse {
-    menu: any
-    menuVersion: any
-}
