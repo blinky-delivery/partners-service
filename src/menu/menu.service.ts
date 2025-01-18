@@ -1,8 +1,10 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { and, eq, or } from 'drizzle-orm';
 import { partnersSchema } from 'src/database/partners.database-schema';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { Menutatus } from './menu.types';
+import { StoreService } from 'src/store/store.service';
+import { StorageService } from 'src/storage/storage.service';
 
 export interface CreateMenuParams {
     name: string
@@ -11,10 +13,22 @@ export interface CreateMenuParams {
     siteId: string
 }
 
+export interface UpdateMenuParams {
+    id: string
+    name: string
+    description: string
+    enabled: boolean
+}
+
+
 @Injectable()
 export class MenuService {
     private readonly logger = new Logger(MenuService.name)
-    constructor(private readonly drizzleService: DrizzleService) { }
+    constructor(
+        private readonly drizzleService: DrizzleService,
+        private readonly storeService: StoreService,
+        private readonly storageService: StorageService
+    ) { }
 
     async getMenuById(menuId: string) {
         try {
@@ -70,6 +84,64 @@ export class MenuService {
                 this.logger.error('Failed to create menu', error.stack)
             } else {
                 this.logger.error('Failed to create menu')
+            }
+            throw error
+        }
+    }
+
+    async updateMenu(params: UpdateMenuParams) {
+        let updateQuery: Partial<typeof partnersSchema.menus.$inferInsert> = {
+            name: params.name,
+            description: params.description,
+            enabled: params.enabled,
+            status: Menutatus.DRAFT,
+        }
+
+        try {
+            const updatedMenu = await this.drizzleService.partnersDb
+                .update(partnersSchema.menus)
+                .set(updateQuery)
+                .where(eq(partnersSchema.menus.id, params.id))
+                .returning()
+
+            if (!updatedMenu) {
+                throw new Error('Failed to update menu in database')
+            }
+
+            return updatedMenu
+        } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error(`Failed to update menu with id ${params.id}`, error.stack)
+            } else {
+                this.logger.error(`Failed to update menu with id ${params.id}`)
+            }
+            throw error
+        }
+    }
+
+    async updateMenuCoverImage(menuId: string, coverImage: Express.Multer.File) {
+        try {
+            const menu = await this.getMenuById(menuId)
+            const folder = await this.storeService.createOrGetStoreFileFolder(menu.storeId)
+            if (!folder) throw new InternalServerErrorException("Error getting store files folder")
+            const coverImageFile = await this.storageService.uploadFileToDirectus(coverImage, folder.id)
+
+            const updatedMenu = await this.drizzleService.partnersDb
+                .update(partnersSchema.menus)
+                .set({ cover_image: coverImageFile.id })
+                .where(eq(partnersSchema.menus.id, menuId))
+                .returning()
+
+            if (!updatedMenu) {
+                throw new Error('Failed to update menu cover image in database')
+            }
+
+            return coverImageFile.id
+        } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error(`Failed to update cover image for menu with id ${menuId}`, error.stack)
+            } else {
+                this.logger.error(`Failed to update cover image for menu with id ${menuId}`)
             }
             throw error
         }

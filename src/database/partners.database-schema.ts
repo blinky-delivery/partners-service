@@ -109,20 +109,20 @@ export const menus = pgTable('menus', {
         .references(() => stores.id, {
             onDelete: 'cascade',
         }),
-    name: varchar('name', { length: 255 }).notNull(),
-    description: text('description').notNull(),
-    enabled: boolean('enabled').notNull(),
     storeSiteId: uuid('store_site_id')
         .references(() => storeSites.id, {
             onDelete: 'cascade',
         }),
+    name: varchar('name', { length: 255 }).notNull(),
+    description: text('description').notNull(),
+    enabled: boolean('enabled').notNull(),
+    cover_image: varchar('site_name', { length: 255 }),
     status: varchar('version_status', { length: 20 }).notNull(), //draft, review, approved, archived.
     changedFields: json("changed_fields"),
     publishedAt: timestamp('published_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
-
 
 
 

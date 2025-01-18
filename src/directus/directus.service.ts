@@ -1,10 +1,11 @@
-import { createDirectus, DirectusClient, rest, RestClient, staticToken } from '@directus/sdk';
-import { Injectable } from '@nestjs/common';
+import { createDirectus, rest, RestClient, staticToken } from '@directus/sdk';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DirectusSchema } from './directus.schema';
 
 @Injectable()
 export class DirectusService {
+    private readonly logger = new Logger(DirectusService.name)
 
     public client: RestClient<DirectusSchema>;
 

@@ -1,8 +1,9 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { DrizzleService } from 'src/database/drizzle.service';
-import { partnersSchema } from 'src/database/partners.database-schema';
+import { partnersSchema, stores } from 'src/database/partners.database-schema';
 import { eq } from 'drizzle-orm';
 import { UsersService } from 'src/users/users.service';
+import { StorageService } from 'src/storage/storage.service';
 
 interface CreateStoreParams {
     applicationId: string
@@ -23,6 +24,7 @@ export class StoreService {
     constructor(
         private readonly drizzleService: DrizzleService,
         private readonly userService: UsersService,
+        private readonly storageService: StorageService
 
     ) { }
 
@@ -157,6 +159,26 @@ export class StoreService {
                 this.logger.error(`Failed to check store ownership for user with extAuthId: ${extAuthId}`);
             }
             throw new Error('Failed to check store ownership');
+        }
+    }
+
+    async createOrGetStoreFileFolder(storeId: string) {
+        try {
+            const folder = await this.storageService.getFolderById(storeId)
+
+            if (folder) {
+                return folder
+            }
+
+            else {
+                const store = await this.getStoreById(storeId)
+                if (store) {
+                    return this.storageService.createFileFolder(store.name, store.id)
+                }
+            }
+
+        } catch (error) {
+
         }
     }
 

@@ -3,7 +3,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { DirectusService } from 'src/directus/directus.service';
-import { uploadFiles } from '@directus/sdk';
+import { createFolder, readFolder, uploadFiles } from '@directus/sdk';
 
 // Enums for file types
 export enum FileType {
@@ -57,11 +57,33 @@ export class StorageService {
         }
     }
 
-    async uploadFileToDirectus(file: Express.Multer.File, folder: DirectusFolder) {
+    async uploadFileToDirectus(file: Express.Multer.File, folderId: string) {
         const formData = new FormData()
         const blob = new Blob([file.buffer], { type: file.mimetype });
-        formData.append('folder', folder)
+        formData.append('folder', folderId)
         formData.append('file', blob, file.originalname);
         return this.directusService.client.request(uploadFiles(formData))
+    }
+
+    async getFolderById(folderId: string) {
+        try {
+            const folder = await this.directusService.client.request(readFolder(folderId))
+            return folder
+        } catch (error) {
+
+        }
+    }
+
+    async createFileFolder(folderName: string, folderId: string) {
+        try {
+            const folder = await this.directusService.client.request(createFolder({
+                id: folderId,
+                name: folderName
+            }))
+
+            return folder
+        } catch (error) {
+
+        }
     }
 }
