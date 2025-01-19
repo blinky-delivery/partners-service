@@ -69,8 +69,8 @@ services:
     ports:
       - 8055:8055
     volumes:
-      - ./uploads:/directus/uploads
-      - ./extensions:/directus/extensions
+      - uploads:/directus/uploads
+      - extensions:/directus/extensions
     depends_on:
       partners_db:
         condition: service_healthy
@@ -100,3 +100,18 @@ services:
 networks:
   postgres:
     driver: bridge
+
+volumes:
+  uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/uploads
+
+  extensions:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/extensions
