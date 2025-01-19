@@ -19,10 +19,10 @@ export class MenuController {
     }
 
     @Get("store_menus")
-    async getStoreMenus(@CurrentUser() user: RequestUser, @Query("store_id") storeId: string, @Query('site_id') siteId?: string) {
+    async getStoreMenus(@CurrentUser() user: RequestUser, @Query("store_id") storeId: string) {
         const authorized = await this.storeService.isUserStoreOwnerByExtAuthId(storeId, user.clerkId)
         if (authorized) {
-            return this.menuSerice.getMenusByStoreSiteId(storeId, siteId)
+            return this.menuSerice.getMenusByStoreId(storeId)
         } else {
             throw new UnauthorizedException('Forbidden');
         }
@@ -39,14 +39,29 @@ export class MenuController {
 
 
     @Put(':menu_id')
-    @UseInterceptors(FileInterceptor('cover_image'))
     async updateMenu(
         @CurrentUser() user: RequestUser,
+        @Param('menu_id') menuId: string,
         @Body() dto: UpdateMenuDto,
-        @UploadedFile() cover_image: Express.Multer.File,
 
     ) {
+        return this.menuSerice.updateMenu({
+            id: menuId,
+            name: dto.name,
+            description: dto.description,
+            enabled: dto.enabled,
+            siteId: dto.siteId
+        })
+    }
 
+    @Put('cover_image')
+    @UseInterceptors(FileInterceptor('file'))
+    async updateMenuCoverImage(
+        @CurrentUser() user: RequestUser,
+        @Query('menu_id') menuId: string,
+        @UploadedFile('file') imageFile: Express.Multer.File,
+    ) {
+        return this.menuSerice.updateMenuCoverImage(menuId, imageFile)
     }
 
 }

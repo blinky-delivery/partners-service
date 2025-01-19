@@ -1,5 +1,5 @@
 {
-  "id": "cf4dbedd-7e44-4b5d-b3ea-047e32152a92",
+  "id": "2eacdf92-bbc8-4423-b943-330ac084f945",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -124,6 +124,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "store_site_id": {
+          "name": "store_site_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "name": {
           "name": "name",
           "type": "varchar(255)",
@@ -142,9 +148,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "store_site_id": {
-          "name": "store_site_id",
-          "type": "uuid",
+        "site_name": {
+          "name": "site_name",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
@@ -279,8 +285,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "site_name": {
-          "name": "site_name",
+        "name": {
+          "name": "name",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false

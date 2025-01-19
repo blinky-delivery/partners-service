@@ -86,7 +86,7 @@ export const storeSites = pgTable('store_sites', {
     approved: boolean('approved').default(false).notNull(),
     latitude: doublePrecision('latitude'),
     longitude: doublePrecision('longitude'),
-    siteName: varchar('site_name', { length: 255 }),
+    name: varchar('name', { length: 255 }),
     cityId: integer('city_id')
         .notNull()
         .references(() => cities.id),
@@ -116,7 +116,7 @@ export const menus = pgTable('menus', {
     name: varchar('name', { length: 255 }).notNull(),
     description: text('description').notNull(),
     enabled: boolean('enabled').notNull(),
-    cover_image: varchar('site_name', { length: 255 }),
+    coverImage: varchar('site_name', { length: 255 }),
     status: varchar('version_status', { length: 20 }).notNull(), //draft, review, approved, archived.
     changedFields: json("changed_fields"),
     publishedAt: timestamp('published_at', { withTimezone: true }),

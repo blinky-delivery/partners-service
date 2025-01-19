@@ -18,6 +18,7 @@ export interface UpdateMenuParams {
     name: string
     description: string
     enabled: boolean
+    siteId: string
 }
 
 
@@ -47,15 +48,15 @@ export class MenuService {
         }
     }
 
-    async getMenusByStoreSiteId(storeId: string, siteId?: string) {
+    async getMenusByStoreId(storeId: string,) {
         try {
-            const menus = await this.drizzleService.partnersDb.query.menus.findMany({ where: (menus, { eq, and }) => siteId != undefined ? and(eq(menus.storeId, storeId), eq(menus.storeSiteId, siteId)) : eq(menus.storeId, storeId) })
+            const menus = await this.drizzleService.partnersDb.query.menus.findMany({ where: (menus, { eq, }) => eq(menus.storeId, storeId) })
             return menus
         } catch (error) {
             if (error instanceof Error) {
-                this.logger.error(`Failed to get menus by store id ${storeId} and store site id ${siteId}`, error.stack)
+                this.logger.error(`Failed to get menus by store id ${storeId}`, error.stack)
             } else {
-                this.logger.error(`Failed to get menus by store id ${storeId} and store site id ${siteId}`)
+                this.logger.error(`Failed to get menus by store id ${storeId}`)
             }
             throw error
         }
@@ -95,10 +96,11 @@ export class MenuService {
             description: params.description,
             enabled: params.enabled,
             status: Menutatus.DRAFT,
+            storeSiteId: params.siteId,
         }
 
         try {
-            const updatedMenu = await this.drizzleService.partnersDb
+            const [updatedMenu] = await this.drizzleService.partnersDb
                 .update(partnersSchema.menus)
                 .set(updateQuery)
                 .where(eq(partnersSchema.menus.id, params.id))
@@ -128,7 +130,7 @@ export class MenuService {
 
             const updatedMenu = await this.drizzleService.partnersDb
                 .update(partnersSchema.menus)
-                .set({ cover_image: coverImageFile.id })
+                .set({ coverImage: coverImageFile.id })
                 .where(eq(partnersSchema.menus.id, menuId))
                 .returning()
 

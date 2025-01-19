@@ -8,5 +8,6 @@ export interface CreateDraftMenuDto {
 export interface UpdateMenuDto {
     name: string
     description: string
+    siteId: string
     enabled: boolean
 }
