@@ -4,11 +4,23 @@ CREATE TABLE "cities" (
 	"sort" integer DEFAULT 0
 );
 --> statement-breakpoint
+CREATE TABLE "images" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"file_id" uuid NOT NULL,
+	"store_id" uuid NOT NULL,
+	"store_site_id" uuid,
+	"type" varchar(20) NOT NULL,
+	"status" varchar(20) NOT NULL,
+	"published_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "menu_categories" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"menu_id" uuid NOT NULL,
 	"name" text DEFAULT '' NOT NULL,
-	"version_status" varchar(20) NOT NULL,
+	"status" varchar(20) NOT NULL,
 	"changed_fields" json,
 	"enabled" boolean NOT NULL,
 	"sort" integer NOT NULL
@@ -22,7 +34,7 @@ CREATE TABLE "menus" (
 	"description" text NOT NULL,
 	"enabled" boolean NOT NULL,
 	"site_name" varchar(255),
-	"version_status" varchar(20) NOT NULL,
+	"status" varchar(20) NOT NULL,
 	"changed_fields" json,
 	"published_at" timestamp with time zone,
 	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -95,6 +107,8 @@ CREATE TABLE "stores" (
 	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 --> statement-breakpoint
+ALTER TABLE "images" ADD CONSTRAINT "images_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "images" ADD CONSTRAINT "images_store_site_id_store_sites_id_fk" FOREIGN KEY ("store_site_id") REFERENCES "public"."store_sites"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "menu_categories" ADD CONSTRAINT "menu_categories_menu_id_menus_id_fk" FOREIGN KEY ("menu_id") REFERENCES "public"."menus"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "menus" ADD CONSTRAINT "menus_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "menus" ADD CONSTRAINT "menus_store_site_id_store_sites_id_fk" FOREIGN KEY ("store_site_id") REFERENCES "public"."store_sites"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

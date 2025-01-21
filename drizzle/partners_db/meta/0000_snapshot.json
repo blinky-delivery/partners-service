@@ -1,5 +1,5 @@
 {
-  "id": "25d77e65-20c1-415c-930b-8637774d27b4",
+  "id": "c942d3ce-0220-44d5-8fb2-74d51d2a86f3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -36,6 +36,103 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.images": {
+      "name": "images",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "file_id": {
+          "name": "file_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "store_id": {
+          "name": "store_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "store_site_id": {
+          "name": "store_site_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "images_store_id_stores_id_fk": {
+          "name": "images_store_id_stores_id_fk",
+          "tableFrom": "images",
+          "tableTo": "stores",
+          "columnsFrom": [
+            "store_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "images_store_site_id_store_sites_id_fk": {
+          "name": "images_store_site_id_store_sites_id_fk",
+          "tableFrom": "images",
+          "tableTo": "store_sites",
+          "columnsFrom": [
+            "store_site_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.menu_categories": {
       "name": "menu_categories",
       "schema": "",
@@ -60,8 +157,8 @@
           "notNull": true,
           "default": "''"
         },
-        "version_status": {
-          "name": "version_status",
+        "status": {
+          "name": "status",
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
@@ -154,8 +251,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "version_status": {
-          "name": "version_status",
+        "status": {
+          "name": "status",
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true

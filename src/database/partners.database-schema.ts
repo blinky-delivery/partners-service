@@ -117,7 +117,7 @@ export const menus = pgTable('menus', {
     description: text('description').notNull(),
     enabled: boolean('enabled').notNull(),
     coverImage: varchar('site_name', { length: 255 }),
-    status: varchar('version_status', { length: 20 }).notNull(), //draft, review, approved, archived.
+    status: varchar('status', { length: 20 }).notNull(), //draft, review, approved, archived.
     changedFields: json("changed_fields"),
     publishedAt: timestamp('published_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
@@ -131,10 +131,29 @@ export const menuCategories = pgTable('menu_categories', {
     menu_id: uuid('menu_id').notNull().references(() => menus.id, { onDelete: 'cascade' }),
     name: varchar('name', { length: 255 }).notNull(),
     description: text('name').notNull().default(""),
-    status: varchar('version_status', { length: 20 }).notNull(),
+    status: varchar('status', { length: 20 }).notNull(),
     changedFields: json("changed_fields"),
     enabled: boolean('enabled').notNull(),
     sort: integer("sort").notNull(),
+})
+
+export const images = pgTable('images', {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+    file_id: uuid('file_id').notNull(),
+    storeId: uuid('store_id')
+        .notNull()
+        .references(() => stores.id, {
+            onDelete: 'cascade',
+        }),
+    storeSiteId: uuid('store_site_id')
+        .references(() => storeSites.id, {
+            onDelete: 'cascade',
+        }),
+    type: varchar('type', { length: 20 }).notNull(), // product, store_logo, header_carousel,
+    status: varchar('status', { length: 20 }).notNull(),
+    publishedAt: timestamp('published_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 })
 
 export const partnersSchema = {

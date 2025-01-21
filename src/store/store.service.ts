@@ -125,6 +125,30 @@ export class StoreService {
         }
     }
 
+    async getSiteById(siteId: string) {
+        this.logger.log(`Fetching site with ID: ${siteId}`);
+        try {
+            const sites = await this.drizzleService.partnersDb
+                .select()
+                .from(partnersSchema.storeSites)
+                .where(eq(partnersSchema.storeSites.id, siteId));
+            const site = sites.pop();
+
+            if (!site) {
+                this.logger.warn(`Site with ID ${siteId} not found.`);
+            }
+
+            return site;
+        } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error(`Failed to fetch site with ID: ${siteId}`, error.stack);
+            } else {
+                this.logger.error(`Failed to fetch site with ID: ${siteId}`);
+            }
+            throw new Error('Failed to fetch site');
+        }
+    }
+
     async isUserStoreOwnerByExtAuthId(storeId: string, extAuthId: string): Promise<boolean> {
         this.logger.log(`Checking if user with extAuthId: ${extAuthId} owns store with ID: ${storeId}`);
         try {
