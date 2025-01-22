@@ -4,7 +4,7 @@ import { CurrentUser } from 'src/auth/current-user.decorator';
 import { RequestUser } from 'src/users/users.types';
 import { MenuService } from './menu.service';
 import { StoreService } from 'src/store/store.service';
-import { CreateDraftMenuDto, UpdateMenuDto } from './menu.dto';
+import { CreateDraftMenuDto, CreateMenuCategoryDto, ResortMenuCategoriesDto, UpdateMenuDto } from './menu.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('menu')
@@ -62,6 +62,21 @@ export class MenuController {
         @UploadedFile('file') imageFile: Express.Multer.File,
     ) {
         return this.menuSerice.updateMenuCoverImage(menuId, imageFile)
+    }
+
+    @Post('categories')
+    async createMenuCategory(@CurrentUser() user: RequestUser, @Body() dto: CreateMenuCategoryDto) {
+        return this.menuSerice.createMenuCategory(dto)
+    }
+
+    @Get('categories')
+    async getMenuCategories(@CurrentUser() user: RequestUser, @Query('menu_id') menuId: string) {
+        return this.menuSerice.getMenuCategories(menuId)
+    }
+
+    @Put('categories/sort')
+    async resortMenuCategories(@CurrentUser() user: RequestUser, @Body() dto: ResortMenuCategoriesDto) {
+        return this.menuSerice.resortMenuCategories(dto.menuId, dto.newOrder)
     }
 
 }

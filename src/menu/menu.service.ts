@@ -21,6 +21,11 @@ export interface UpdateMenuParams {
     siteId: string
 }
 
+export interface CreateMenuCategoryParams {
+    menuId: string
+    name: string
+}
+
 
 @Injectable()
 export class MenuService {
@@ -50,7 +55,13 @@ export class MenuService {
 
     async getMenusByStoreId(storeId: string,) {
         try {
-            const menus = await this.drizzleService.partnersDb.query.menus.findMany({ where: (menus, { eq, }) => eq(menus.storeId, storeId) })
+            const menus = await this.drizzleService.partnersDb.query.menus
+                .findMany(
+                    {
+                        where: (menus, { eq, }) => eq(menus.storeId, storeId),
+                        orderBy: (menus, { asc }) => asc(menus.sort),
+                    }
+                )
             return menus
         } catch (error) {
             if (error instanceof Error) {
@@ -147,6 +158,86 @@ export class MenuService {
             }
             throw error
         }
+    }
+
+
+    async createMenuCategory(params: CreateMenuCategoryParams) {
+        try {
+            const lastCategory = await this.drizzleService.partnersDb.query.menuCategories.findFirst({
+                where: (menuCategories, { eq }) => eq(menuCategories.menuId, params.menuId),
+                orderBy: (menuCategories, { desc }) => desc(menuCategories.sort),
+            })
+
+            const sortOrder = lastCategory ? lastCategory.sort + 1 : 1
+            const categorCreateResult = await this.drizzleService.partnersDb
+                .insert(partnersSchema.menuCategories)
+                .values({
+                    menuId: params.menuId,
+                    name: params.name,
+                    enabled: true,
+                    sort: sortOrder,
+                    status: '',
+                }).returning()
+            const createdCategory = categorCreateResult.pop()
+
+            if (!createdCategory) {
+                throw new Error('Failed to insert menu category in database')
+            }
+
+            this.logger.log(`Menu category created with id ${createdCategory.id} for menu ${params.menuId}`)
+            return createdCategory
+        } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error('Failed to create menu category', error.stack)
+            } else {
+                this.logger.error('Failed to create menu category')
+            }
+            throw error
+        }
+    }
+
+    async getMenuCategories(menuId: string) {
+        try {
+            const categories = this.drizzleService.partnersDb
+                .query.
+                menuCategories
+                .findMany({
+                    where: (menuCategories, { eq }) => eq(menuCategories.menuId, menuId)
+                })
+
+            return categories
+        } catch (error) {
+            throw error
+        }
+    }
+
+    async resortMenuCategories(menuId: string, newOrder: string[]) {
+        this.logger.log(`Resorting categories for menu ${menuId}`)
+        const categories = await this.getMenuCategories(menuId)
+        const categoryMap = new Map(categories.map(category => [category.id, category]))
+
+        await this.drizzleService.partnersDb.transaction(async (tx) => {
+            for (const [index, categoryId] of newOrder.entries()) {
+                const category = categoryMap.get(categoryId)
+                if (!category) {
+                    this.logger.warn(`Category with id ${categoryId} not found in menu ${menuId}`)
+                    throw new NotFoundException(`Category with id ${categoryId} not found in menu ${menuId}`)
+                }
+                this.logger.log(`Updating sort order for category ${categoryId} to ${index + 1}`)
+                try {
+                    await tx.update(partnersSchema.menuCategories)
+                        .set({ sort: index + 1 })
+                        .where(eq(partnersSchema.menuCategories.id, categoryId))
+                        .returning()
+                } catch (err) {
+                    tx.rollback()
+                    throw err
+                }
+            }
+        })
+        this.logger.log(`Successfully resorted categories for menu ${menuId}`)
+
+        return newOrder
     }
 
 

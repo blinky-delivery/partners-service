@@ -1,7 +1,6 @@
 
 import { pgTable, uuid, varchar, timestamp, serial, boolean, integer, text, doublePrecision, jsonb, json } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
-import { primaryKey } from 'drizzle-orm/pg-core';
 
 // Roles table
 export const roles = pgTable('roles', {
@@ -116,6 +115,7 @@ export const menus = pgTable('menus', {
     name: varchar('name', { length: 255 }).notNull(),
     description: text('description').notNull(),
     enabled: boolean('enabled').notNull(),
+    sort: integer('sort').default(0),
     coverImage: varchar('site_name', { length: 255 }),
     status: varchar('status', { length: 20 }).notNull(), //draft, review, approved, archived.
     changedFields: json("changed_fields"),
@@ -128,9 +128,9 @@ export const menus = pgTable('menus', {
 
 export const menuCategories = pgTable('menu_categories', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-    menu_id: uuid('menu_id').notNull().references(() => menus.id, { onDelete: 'cascade' }),
+    menuId: uuid('menu_id').notNull().references(() => menus.id, { onDelete: 'cascade' }),
     name: varchar('name', { length: 255 }).notNull(),
-    description: text('name').notNull().default(""),
+    description: text('description'),
     status: varchar('status', { length: 20 }).notNull(),
     changedFields: json("changed_fields"),
     enabled: boolean('enabled').notNull(),
