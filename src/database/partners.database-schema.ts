@@ -192,5 +192,6 @@ export const partnersSchema = {
     storeSites,
     menus,
     menuCategories,
+    images,
     products,
 };

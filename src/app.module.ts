@@ -14,6 +14,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseFormatInterceptor } from './response/response.interceptor';
 import { MenuModule } from './menu/menu.module';
 import { ProductModule } from './product/product.module';
+import { ImageModule } from './image/image.module';
 
 @Module({
   imports: [
@@ -75,6 +76,7 @@ import { ProductModule } from './product/product.module';
     DirectusModule,
     MenuModule,
     ProductModule,
+    ImageModule,
   ],
   controllers: [],
   providers: [
