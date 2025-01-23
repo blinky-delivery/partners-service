@@ -1,0 +1,34 @@
+import { Body, Controller, Get, Logger, Post, Query, UseGuards } from '@nestjs/common';
+import { ClerkAuthGuard } from 'src/auth/clerk-auth.guard';
+import { ProductService } from './product.service';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { RequestUser } from 'src/users/users.types';
+
+
+
+@Controller('product')
+@UseGuards(ClerkAuthGuard)
+export class ProductController {
+    private readonly logger = new Logger(ProductController.name)
+
+    constructor(
+        private readonly productService: ProductService,
+    ) { }
+
+
+    @Post()
+    async createProduct(
+        @CurrentUser() user: RequestUser,
+        @Body() dto: CreateProdcutDto,
+    ) {
+        return this.productService.createProduct(dto)
+    }
+
+    @Get('/menu_category')
+    async getProductsByMenuCategory(
+        @CurrentUser() user: RequestUser,
+        @Query('menu_category_id') menuCategoryId: string,
+    ) {
+        return this.productService.getProductsByMenuCategory(menuCategoryId)
+    }
+}

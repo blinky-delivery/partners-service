@@ -13,6 +13,7 @@ import { DirectusModule } from './directus/directus.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseFormatInterceptor } from './response/response.interceptor';
 import { MenuModule } from './menu/menu.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { MenuModule } from './menu/menu.module';
     ParametersModule,
     DirectusModule,
     MenuModule,
+    ProductModule,
   ],
   controllers: [],
   providers: [

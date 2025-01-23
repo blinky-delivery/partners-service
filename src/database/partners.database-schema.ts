@@ -156,6 +156,32 @@ export const images = pgTable('images', {
     updatedAt: timestamp('updated_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 })
 
+export const products = pgTable('products', {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+    storeId: uuid('store_id')
+        .notNull()
+        .references(() => stores.id, {
+            onDelete: 'cascade',
+        }),
+    menuCategoryId: uuid('menu_category_id')
+        .references(() => menuCategories.id)
+        .notNull(),
+    name: varchar('name', { length: 255 }).notNull(),
+    description: text('description'),
+    price: doublePrecision('price').notNull(),
+    taxRate: doublePrecision('tax_rate'),
+    imageId: uuid('images')
+        .references(() => images.id),
+    enabled: boolean('enabled').default(true).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+});
+
+
 export const partnersSchema = {
     storeUsers,
     customers: store_customers,
@@ -166,4 +192,5 @@ export const partnersSchema = {
     storeSites,
     menus,
     menuCategories,
+    products,
 };
