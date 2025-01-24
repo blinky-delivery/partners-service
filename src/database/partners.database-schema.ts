@@ -137,24 +137,6 @@ export const menuCategories = pgTable('menu_categories', {
     sort: integer("sort").notNull(),
 })
 
-export const images = pgTable('images', {
-    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-    file_id: uuid('file_id').notNull(),
-    storeId: uuid('store_id')
-        .notNull()
-        .references(() => stores.id, {
-            onDelete: 'cascade',
-        }),
-    storeSiteId: uuid('store_site_id')
-        .references(() => storeSites.id, {
-            onDelete: 'cascade',
-        }),
-    type: varchar('type', { length: 20 }).notNull(), // product, store_logo, header_carousel,
-    status: varchar('status', { length: 20 }).notNull(),
-    publishedAt: timestamp('published_at', { withTimezone: true }),
-    createdAt: timestamp('created_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-})
 
 export const products = pgTable('products', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
@@ -170,8 +152,6 @@ export const products = pgTable('products', {
     description: text('description'),
     price: doublePrecision('price').notNull(),
     taxRate: doublePrecision('tax_rate'),
-    imageId: uuid('images')
-        .references(() => images.id),
     enabled: boolean('enabled').default(true).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true })
         .default(sql`CURRENT_TIMESTAMP`)
@@ -180,6 +160,33 @@ export const products = pgTable('products', {
         .default(sql`CURRENT_TIMESTAMP`)
         .notNull(),
 });
+
+export const images = pgTable('images', {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+    fileId: uuid('file_id').notNull(),
+    storeId: uuid('store_id')
+        .notNull()
+        .references(() => stores.id, {
+            onDelete: 'cascade',
+        }),
+    storeSiteId: uuid('store_site_id')
+        .references(() => storeSites.id, {
+            onDelete: 'set null',
+        }),
+    productId: uuid('product_id')
+        .references(() => products.id, {
+            onDelete: 'set null',
+        }),
+    type: varchar('type', { length: 20 }).notNull(), // product, store_logo, header_carousel,
+    status: varchar('status', { length: 20 }).notNull(),
+    publishedAt: timestamp('published_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+})
+
+export const productsRelations = relations(products, ({ many }) => ({
+    images: many(images)
+}))
 
 
 export const partnersSchema = {
@@ -193,5 +200,6 @@ export const partnersSchema = {
     menus,
     menuCategories,
     images,
+    productsRelations,
     products,
 };

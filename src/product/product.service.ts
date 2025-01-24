@@ -24,7 +24,12 @@ export class ProductService {
             const products = await this.drizzleService.partnersDb
                 .query
                 .products
-                .findMany({ where: (fields, { eq }) => eq(fields.menuCategoryId, menuCategoryId) });
+                .findMany({
+                    where: (fields, { eq }) => eq(fields.menuCategoryId, menuCategoryId),
+                    with: {
+                        images: true,
+                    }
+                });
 
             this.logger.log(`Products fetched successfully for menu category ID: ${menuCategoryId}`);
             return products;
@@ -76,4 +81,5 @@ export class ProductService {
             throw error;
         }
     }
+
 }
