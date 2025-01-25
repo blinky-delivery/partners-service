@@ -4,8 +4,6 @@ import { ImageStatus, ImageType } from './image.types';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
 
-
-
 interface UploadImageParams {
     storeId: string
     storeSiteId: string | null
@@ -55,6 +53,8 @@ export class ImageService {
             insertQuery.productId = productParams.productId
         }
 
+        // await this.drizzleService.partnersDb
+
         const [image] = await this.drizzleService.partnersDb
             .insert(partnersSchema.images)
             .values(insertQuery).returning()
@@ -80,5 +80,7 @@ export class ImageService {
         return images
 
     }
+
+
 
 }

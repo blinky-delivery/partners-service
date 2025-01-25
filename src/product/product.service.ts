@@ -9,7 +9,6 @@ interface CreateProdcutParams {
     price: number
     taxRate: number | null
 }
-
 @Injectable()
 export class ProductService {
     constructor(
@@ -27,7 +26,7 @@ export class ProductService {
                 .findMany({
                     where: (fields, { eq }) => eq(fields.menuCategoryId, menuCategoryId),
                     with: {
-                        images: true,
+                        primaryImage: true,
                     }
                 });
 
@@ -72,6 +71,7 @@ export class ProductService {
                     description: params.description,
                     taxRate: params.taxRate,
                 }).returning();
+
 
             this.logger.log(`Product created successfully: ${JSON.stringify(createdProduct)}`);
             return createdProduct;
