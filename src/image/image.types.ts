@@ -8,6 +8,7 @@ export enum ImageStatus {
     REVIEW = 'REVIEW',
     APPROVED = 'APPROVED',
     ARCHIVED = 'ARCHIVED',
+    REJECTED = 'REJECTED',
 }
 
 

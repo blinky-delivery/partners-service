@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Logger, MaxFileSizeValidator, ParseFilePipe, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Logger, MaxFileSizeValidator, ParseFilePipe, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ClerkAuthGuard } from 'src/auth/clerk-auth.guard';
 import { ImageService } from './image.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -6,6 +6,7 @@ import { CurrentUser } from 'src/auth/current-user.decorator';
 import { RequestUser } from 'src/users/users.types';
 import { UploadImageDto } from './images.dto';
 import { ImageFileType } from 'src/storage/file-type.enum';
+import { ImageStatus, ImageType } from './image.types';
 
 
 const ImageFileFilter = (req: any, file: Express.Multer.File, cb: Function) => {
@@ -30,6 +31,15 @@ export class ImageController {
         private readonly imageService: ImageService,
     ) { }
 
+    @Get()
+    async getImages(
+        @Query('store_id') storeId: string,
+        @Query('type') type: ImageType,
+        @Query('status') status: ImageStatus
+    ) {
+        return this.imageService.getStoreImages({ storeId, type, status })
+    }
+
     @Post('upload')
     @UseInterceptors(FileInterceptor('file', { fileFilter: ImageFileFilter }))
     async uploadImage(
@@ -49,7 +59,7 @@ export class ImageController {
             storeId: dto.storeId,
             storeSiteId: dto.storeSiteId,
             type: dto.type,
-            productParams: dto.productParams,
+            productId: dto.productId,
         })
     }
 

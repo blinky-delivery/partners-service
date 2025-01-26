@@ -4,7 +4,8 @@ import { ImageController } from './image.controller';
 import { StorageModule } from 'src/storage/storage.module';
 
 @Module({
-  providers: [ImageService, StorageModule],
-  controllers: [ImageController]
+  providers: [ImageService,],
+  controllers: [ImageController],
+  imports: [StorageModule]
 })
 export class ImageModule { }

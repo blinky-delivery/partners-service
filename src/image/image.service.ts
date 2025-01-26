@@ -3,15 +3,14 @@ import { StorageService } from 'src/storage/storage.service';
 import { ImageStatus, ImageType } from './image.types';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
+import { eq } from 'drizzle-orm';
 
 interface UploadImageParams {
     storeId: string
     storeSiteId: string | null
     file: Express.Multer.File,
     type: ImageType,
-    productParams?: {
-        productId: string
-    },
+    productId: string | null
 }
 
 interface GetImagesParams {
@@ -36,31 +35,42 @@ export class ImageService {
         type,
         storeId,
         storeSiteId,
-        productParams,
+        productId,
     }: UploadImageParams) {
+        try {
+            const imageFile = await this.storageService.uploadFileToDirectus(file, storeId);
 
-        const imageFile = await this.storageService.uploadFileToDirectus(file, storeId)
+            const insertQuery: InsertImage = {
+                fileId: imageFile.id,
+                storeId,
+                storeSiteId,
+                type,
+                status: ImageStatus.REVIEW,
+            };
 
-        let insertQuery: InsertImage = {
-            fileId: imageFile.id,
-            storeId: storeId,
-            storeSiteId: storeSiteId,
-            type: type,
-            status: ImageStatus.REVIEW,
+            if (type === ImageType.ITEM_PHOTO && productId) {
+                insertQuery.productId = productId;
+            }
+
+            const image = await this.drizzleService.partnersDb.transaction(async (tx) => {
+                const [insertedImage] = await tx.insert(partnersSchema.images)
+                    .values(insertQuery)
+                    .returning();
+
+                if (insertedImage && type === ImageType.ITEM_PHOTO && productId) {
+                    await tx.update(partnersSchema.products)
+                        .set({ primaryImageId: insertedImage.id })
+                        .where(eq(partnersSchema.products.id, productId));
+                }
+
+                return insertedImage;
+            });
+
+            return image;
+        } catch (error) {
+            this.logger.error('Failed to upload image', error);
+            throw error;
         }
-
-        if (type == ImageType.ITEM_PHOTO && productParams) {
-            insertQuery.productId = productParams.productId
-        }
-
-        // await this.drizzleService.partnersDb
-
-        const [image] = await this.drizzleService.partnersDb
-            .insert(partnersSchema.images)
-            .values(insertQuery).returning()
-
-        return image
-
     }
 
     async getStoreImages({

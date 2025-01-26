@@ -1,5 +1,5 @@
 {
-  "id": "ecb34749-df96-4a1b-a6dc-dac7f43cf59e",
+  "id": "192c8da3-d85e-497e-888d-3ae4221e2b8e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -65,6 +65,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "product_id": {
+          "name": "product_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "type": {
           "name": "type",
           "type": "varchar(20)",
@@ -123,7 +129,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -354,6 +360,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "primary_image_id": {
+          "name": "primary_image_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "name": {
           "name": "name",
           "type": "varchar(255)",
@@ -372,9 +384,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "images": {
-          "name": "images",
-          "type": "uuid",
+        "tax_rate": {
+          "name": "tax_rate",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": false
         },
@@ -428,17 +440,17 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "products_images_images_id_fk": {
-          "name": "products_images_images_id_fk",
+        "products_primary_image_id_images_id_fk": {
+          "name": "products_primary_image_id_images_id_fk",
           "tableFrom": "products",
           "tableTo": "images",
           "columnsFrom": [
-            "images"
+            "primary_image_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
