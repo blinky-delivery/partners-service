@@ -46,9 +46,9 @@ export class ImageController {
         @CurrentUser() user: RequestUser,
         @UploadedFile(
             new ParseFilePipe({
-                validators: [
-                    new MaxFileSizeValidator({ maxSize: 5000 })
-                ]
+                // validators: [
+                //     new MaxFileSizeValidator({ maxSize: 5000 })
+                // ]
             })
         ) imageFile: Express.Multer.File,
         @Body() dto: UploadImageDto,

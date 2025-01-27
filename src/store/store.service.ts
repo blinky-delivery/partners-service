@@ -187,22 +187,29 @@ export class StoreService {
     }
 
     async createOrGetStoreFileFolder(storeId: string) {
+        this.logger.log(`Creating or fetching file folder for store with ID: ${storeId}`);
         try {
-            const folder = await this.storageService.getFolderById(storeId)
+            const folder = await this.storageService.getFolderById(storeId);
 
             if (folder) {
-                return folder
-            }
-
-            else {
-                const store = await this.getStoreById(storeId)
+                this.logger.log(`Folder found for store with ID: ${storeId}`);
+                return folder;
+            } else {
+                const store = await this.getStoreById(storeId);
                 if (store) {
-                    return this.storageService.createFileFolder(store.name, store.id)
+                    this.logger.log(`Creating new folder for store with ID: ${storeId}`);
+                    return this.storageService.createFileFolder(store.name, store.id);
+                } else {
+                    this.logger.warn(`Store with ID: ${storeId} not found, cannot create folder`);
                 }
             }
-
         } catch (error) {
-
+            if (error instanceof Error) {
+                this.logger.error(`Failed to create or fetch file folder for store with ID: ${storeId}`, error.stack);
+            } else {
+                this.logger.error(`Failed to create or fetch file folder for store with ID: ${storeId}`);
+            }
+            throw new Error('Failed to create or fetch file folder');
         }
     }
 

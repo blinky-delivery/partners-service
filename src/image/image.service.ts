@@ -4,6 +4,7 @@ import { ImageStatus, ImageType } from './image.types';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
 import { eq } from 'drizzle-orm';
+import { StoreService } from 'src/store/store.service';
 
 interface UploadImageParams {
     storeId: string
@@ -27,6 +28,7 @@ export class ImageService {
     constructor(
         private readonly storageService: StorageService,
         private readonly drizzleService: DrizzleService,
+        private readonly storeService: StoreService,
     ) {
     }
 
@@ -38,35 +40,40 @@ export class ImageService {
         productId,
     }: UploadImageParams) {
         try {
-            const imageFile = await this.storageService.uploadFileToDirectus(file, storeId);
+            const storeFolder = await this.storeService.createOrGetStoreFileFolder(storeId)
 
-            const insertQuery: InsertImage = {
-                fileId: imageFile.id,
-                storeId,
-                storeSiteId,
-                type,
-                status: ImageStatus.REVIEW,
-            };
+            if (storeFolder) {
+                const imageFile = await this.storageService.uploadFileToDirectus(file, storeFolder.id);
 
-            if (type === ImageType.ITEM_PHOTO && productId) {
-                insertQuery.productId = productId;
-            }
+                const insertQuery: InsertImage = {
+                    fileId: imageFile.id,
+                    storeId,
+                    storeSiteId,
+                    type,
+                    status: ImageStatus.REVIEW,
+                };
 
-            const image = await this.drizzleService.partnersDb.transaction(async (tx) => {
-                const [insertedImage] = await tx.insert(partnersSchema.images)
-                    .values(insertQuery)
-                    .returning();
-
-                if (insertedImage && type === ImageType.ITEM_PHOTO && productId) {
-                    await tx.update(partnersSchema.products)
-                        .set({ primaryImageId: insertedImage.id })
-                        .where(eq(partnersSchema.products.id, productId));
+                if (type === ImageType.ITEM_PHOTO && productId) {
+                    insertQuery.productId = productId;
                 }
 
-                return insertedImage;
-            });
+                const image = await this.drizzleService.partnersDb.transaction(async (tx) => {
+                    const [insertedImage] = await tx.insert(partnersSchema.images)
+                        .values(insertQuery)
+                        .returning();
 
-            return image;
+                    if (insertedImage && type === ImageType.ITEM_PHOTO && productId) {
+                        await tx.update(partnersSchema.products)
+                            .set({ primaryImageId: insertedImage.id })
+                            .where(eq(partnersSchema.products.id, productId));
+                    }
+
+                    return insertedImage;
+                });
+
+                return image;
+            }
+
         } catch (error) {
             this.logger.error('Failed to upload image', error);
             throw error;
