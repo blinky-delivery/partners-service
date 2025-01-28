@@ -109,7 +109,7 @@ export class UsersService {
                 .values({
                     extAuthId: clerkUser.id,
                     email: props.email,
-                    role: 'OWNER',
+                    role: UserRole.OWNER,
                     fullName: props.fullName,
                     phoneNumber: props.phoneNumber,
                 })
