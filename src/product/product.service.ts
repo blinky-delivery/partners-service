@@ -1,4 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
 
@@ -9,6 +10,18 @@ interface CreateProdcutParams {
     price: number
     taxRate: number | null
 }
+
+interface UpdateProductParams {
+    menuCategoryId: string
+    name: string
+    description: string | null,
+    price: number
+    taxRate: number | null
+    primaryImageId: string | null
+}
+
+type UpdateProductQuery = typeof partnersSchema.products.$inferInsert
+
 @Injectable()
 export class ProductService {
     constructor(
@@ -25,6 +38,7 @@ export class ProductService {
                 .products
                 .findMany({
                     where: (fields, { eq }) => eq(fields.menuCategoryId, menuCategoryId),
+                    orderBy: (fields, { asc }) => asc(fields.sort),
                     with: {
                         primaryImage: true,
                     }
@@ -61,6 +75,13 @@ export class ProductService {
                 return null;
             }
 
+            const lastProduct = await this.drizzleService.partnersDb.query.products.findFirst({
+                where: (products, { eq }) => eq(products.menuCategoryId, params.menuCategoryId),
+                orderBy: (products, { desc }) => desc(products.sort),
+            });
+
+            const sortOrder = lastProduct ? lastProduct.sort + 1 : 1;
+
             const [createdProduct] = await this.drizzleService.partnersDb
                 .insert(partnersSchema.products)
                 .values({
@@ -70,8 +91,8 @@ export class ProductService {
                     price: params.price,
                     description: params.description,
                     taxRate: params.taxRate,
+                    sort: sortOrder,
                 }).returning();
-
 
             this.logger.log(`Product created successfully: ${JSON.stringify(createdProduct)}`);
             return createdProduct;
@@ -80,6 +101,75 @@ export class ProductService {
             this.logger.error('Error creating product:', error);
             throw error;
         }
+    }
+
+    async updateProduct(productId: string, params: UpdateProductParams) {
+
+        try {
+            this.logger.log(`Updating product with ID: ${productId} and params: ${JSON.stringify(params)}`);
+
+            const product = await this.drizzleService.partnersDb
+                .query
+                .products
+                .findFirst({ where: (fields, { eq }) => eq(fields.id, productId) });
+
+            if (!product) {
+                this.logger.error(`Product not found: ${productId}`);
+                return null;
+            }
+
+            let updateProductQuery: UpdateProductQuery = {
+                storeId: product.storeId,
+                menuCategoryId: params.menuCategoryId,
+                primaryImageId: params.primaryImageId,
+                name: params.name,
+                description: params.description,
+                taxRate: params.taxRate,
+                price: params.price,
+            }
+
+            const updatedProduct = await this.drizzleService.partnersDb
+                .update(partnersSchema.products)
+                .set(updateProductQuery)
+                .where(eq(partnersSchema.products.id, productId))
+                .returning();
+
+            this.logger.log(`Product updated successfully: ${JSON.stringify(updatedProduct)}`);
+            return updatedProduct;
+
+        } catch (error) {
+            this.logger.error(`Error updating product with ID: ${productId}`, error);
+            throw error;
+        }
+    }
+
+    async resortProducts(menuCategoryId: string, newOrder: string[]) {
+        this.logger.log(`Resorting products for menu category ${menuCategoryId}`);
+        const products = await this.getProductsByMenuCategory(menuCategoryId);
+        const productMap = new Map(products.map(product => [product.id, product]));
+
+        await this.drizzleService.partnersDb.transaction(async (tx) => {
+            for (const [index, productId] of newOrder.entries()) {
+                const product = productMap.get(productId);
+                if (!product) {
+                    this.logger.warn(`Product with id ${productId} not found in menu category ${menuCategoryId}`);
+                    throw new NotFoundException(`Product with id ${productId} not found in menu category ${menuCategoryId}`);
+                }
+                this.logger.log(`Updating sort order for product ${productId} to ${index + 1}`);
+                try {
+                    await tx.update(partnersSchema.products)
+                        .set({ sort: index + 1 })
+                        .where(eq(partnersSchema.products.id, productId))
+                        .returning();
+                } catch (err) {
+                    tx.rollback();
+                    throw err;
+                }
+            }
+        });
+        this.logger.log(`Successfully resorted products for menu category ${menuCategoryId}`);
+
+        return newOrder;
     }
 
 }

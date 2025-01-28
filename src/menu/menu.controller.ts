@@ -38,21 +38,21 @@ export class MenuController {
     }
 
 
-    @Put(':menu_id')
-    async updateMenu(
-        @CurrentUser() user: RequestUser,
-        @Param('menu_id') menuId: string,
-        @Body() dto: UpdateMenuDto,
+    // @Put(':menu_id')
+    // async updateMenu(
+    //     @CurrentUser() user: RequestUser,
+    //     @Param('menu_id') menuId: string,
+    //     @Body() dto: UpdateMenuDto,
 
-    ) {
-        return this.menuSerice.updateMenu({
-            id: menuId,
-            name: dto.name,
-            description: dto.description,
-            enabled: dto.enabled,
-            siteId: dto.siteId
-        })
-    }
+    // ) {
+    //     return this.menuSerice.updateMenu({
+    //         id: menuId,
+    //         name: dto.name,
+    //         description: dto.description,
+    //         enabled: dto.enabled,
+    //         siteId: dto.siteId
+    //     })
+    // }
 
 
     @Post('categories')

@@ -173,6 +173,7 @@ export const products = pgTable('products', {
     price: doublePrecision('price').notNull(),
     taxRate: doublePrecision('tax_rate'),
     enabled: boolean('enabled').default(true).notNull(),
+    sort: integer("sort").notNull().default(1),
     createdAt: timestamp('created_at', { withTimezone: true })
         .default(sql`CURRENT_TIMESTAMP`)
         .notNull(),

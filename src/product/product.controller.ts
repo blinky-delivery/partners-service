@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Logger, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ClerkAuthGuard } from 'src/auth/clerk-auth.guard';
 import { ProductService } from './product.service';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import { RequestUser } from 'src/users/users.types';
+import { CreateProdcutDto, ResortProductsDto, UpdateProductDto } from './product.dto';
 
 
 
@@ -31,4 +32,18 @@ export class ProductController {
     ) {
         return this.productService.getProductsByMenuCategory(menuCategoryId)
     }
+
+    @Put('sort')
+    async resortMenuCategories(@CurrentUser() user: RequestUser, @Body() dto: ResortProductsDto) {
+        return this.productService.resortProducts(dto.menuCategoryId, dto.newOrder)
+    }
+
+    @Put('update')
+    async updateProduct(@Query('product_id') productId: string, @Body() dto: UpdateProductDto) {
+        return this.productService.updateProduct(productId, dto)
+    }
+
+
+
+
 }
