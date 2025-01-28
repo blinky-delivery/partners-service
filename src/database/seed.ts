@@ -38,6 +38,7 @@ async function main() {
             stores: partnersSchema.stores,
             cities: partnersSchema.cities,
             storeSites: partnersSchema.storeSites,
+            menus: partnersSchema.menus,
         }
     ).refine((f) => ({
         storeTypes: {
@@ -91,7 +92,18 @@ async function main() {
                 storeId: f.valuesFromArray({ values: [storeId1] }),
                 postalCode: f.postcode(),
             }
+        },
+        menus: {
+            count: 1,
+            columns: {
+                id: f.valuesFromArray({ values: [storeSiteId1, storeSiteId2] }),
+                name: f.companyName(),
+                description: f.valuesFromArray({ values: ["", ""] }),
+                storeSiteId: f.valuesFromArray({ values: [storeSiteId1, storeSiteId2] }),
+                storeId: f.valuesFromArray({ values: [storeId1] }),
+            }
         }
+
     }))
 }
 

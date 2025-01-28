@@ -116,9 +116,7 @@ export const menus = pgTable('menus', {
     description: text('description').notNull(),
     enabled: boolean('enabled').notNull(),
     sort: integer('sort').default(0),
-    coverImage: varchar('site_name', { length: 255 }),
     status: varchar('status', { length: 20 }).notNull(), //draft, review, approved, archived.
-    changedFields: json("changed_fields"),
     publishedAt: timestamp('published_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),

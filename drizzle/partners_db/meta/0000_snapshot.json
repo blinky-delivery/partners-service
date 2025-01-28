@@ -1,5 +1,5 @@
 {
-  "id": "192c8da3-d85e-497e-888d-3ae4221e2b8e",
+  "id": "52c82cf9-5709-4e64-9099-45942e09b398",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -263,23 +263,11 @@
           "notNull": false,
           "default": 0
         },
-        "site_name": {
-          "name": "site_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
         "status": {
           "name": "status",
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
-        },
-        "changed_fields": {
-          "name": "changed_fields",
-          "type": "json",
-          "primaryKey": false,
-          "notNull": false
         },
         "published_at": {
           "name": "published_at",

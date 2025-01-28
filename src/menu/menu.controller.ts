@@ -54,15 +54,6 @@ export class MenuController {
         })
     }
 
-    @Put('cover_image')
-    @UseInterceptors(FileInterceptor('file'))
-    async updateMenuCoverImage(
-        @CurrentUser() user: RequestUser,
-        @Query('menu_id') menuId: string,
-        @UploadedFile('file') imageFile: Express.Multer.File,
-    ) {
-        return this.menuSerice.updateMenuCoverImage(menuId, imageFile)
-    }
 
     @Post('categories')
     async createMenuCategory(@CurrentUser() user: RequestUser, @Body() dto: CreateMenuCategoryDto) {

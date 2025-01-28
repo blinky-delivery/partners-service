@@ -26,7 +26,7 @@ export interface CreateMenuCategoryParams {
     name: string
 }
 
-
+type InsertMenuParams = typeof partnersSchema.menus.$inferInsert
 @Injectable()
 export class MenuService {
     private readonly logger = new Logger(MenuService.name)
@@ -73,18 +73,25 @@ export class MenuService {
         }
     }
 
-    async createMenu(params: CreateMenuParams) {
+
+
+    async createMenu(params: CreateMenuParams, isMainMenu = false) {
+
+        let insertMenuParams: InsertMenuParams = {
+            storeId: params.storeId,
+            storeSiteId: params.siteId,
+            name: params.name,
+            description: params.description,
+            status: Menutatus.DRAFT,
+            enabled: true,
+        }
+
+        if (isMainMenu) insertMenuParams.id = params.siteId
+
         try {
             const [createdMenu] = await this.drizzleService.partnersDb
                 .insert(partnersSchema.menus)
-                .values({
-                    storeId: params.storeId,
-                    storeSiteId: params.siteId,
-                    name: params.name,
-                    description: params.description,
-                    status: Menutatus.DRAFT,
-                    enabled: true,
-                }).returning()
+                .values(insertMenuParams).returning()
 
             if (!createdMenu) {
                 throw new Error('Failed to insert menu in database')
@@ -127,34 +134,6 @@ export class MenuService {
                 this.logger.error(`Failed to update menu with id ${params.id}`, error.stack)
             } else {
                 this.logger.error(`Failed to update menu with id ${params.id}`)
-            }
-            throw error
-        }
-    }
-
-    async updateMenuCoverImage(menuId: string, coverImage: Express.Multer.File) {
-        try {
-            const menu = await this.getMenuById(menuId)
-            const folder = await this.storeService.createOrGetStoreFileFolder(menu.storeId)
-            if (!folder) throw new InternalServerErrorException("Error getting store files folder")
-            const coverImageFile = await this.storageService.uploadFileToDirectus(coverImage, folder.id)
-
-            const updatedMenu = await this.drizzleService.partnersDb
-                .update(partnersSchema.menus)
-                .set({ coverImage: coverImageFile.id })
-                .where(eq(partnersSchema.menus.id, menuId))
-                .returning()
-
-            if (!updatedMenu) {
-                throw new Error('Failed to update menu cover image in database')
-            }
-
-            return coverImageFile.id
-        } catch (error) {
-            if (error instanceof Error) {
-                this.logger.error(`Failed to update cover image for menu with id ${menuId}`, error.stack)
-            } else {
-                this.logger.error(`Failed to update cover image for menu with id ${menuId}`)
             }
             throw error
         }

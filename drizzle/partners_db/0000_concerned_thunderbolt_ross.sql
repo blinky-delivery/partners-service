@@ -36,9 +36,7 @@ CREATE TABLE "menus" (
 	"description" text NOT NULL,
 	"enabled" boolean NOT NULL,
 	"sort" integer DEFAULT 0,
-	"site_name" varchar(255),
 	"status" varchar(20) NOT NULL,
-	"changed_fields" json,
 	"published_at" timestamp with time zone,
 	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
