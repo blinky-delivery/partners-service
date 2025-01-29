@@ -7,6 +7,7 @@ export interface CreateProdcutDto {
 }
 
 export interface UpdateProductDto {
+    productId: string
     menuCategoryId: string
     name: string
     description: string | null,

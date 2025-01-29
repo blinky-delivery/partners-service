@@ -39,8 +39,8 @@ export class ProductController {
     }
 
     @Put('update')
-    async updateProduct(@Query('product_id') productId: string, @Body() dto: UpdateProductDto) {
-        return this.productService.updateProduct(productId, dto)
+    async updateProduct(@Body() dto: UpdateProductDto) {
+        return this.productService.updateProduct(dto.productId, dto)
     }
 
 
