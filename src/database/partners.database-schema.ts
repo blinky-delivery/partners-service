@@ -264,6 +264,7 @@ export const partnersSchema = {
     products,
     productsRelations,
     modifiers,
+    modifiersToProducts,
     modifiersToProductsRelations,
     modifiersRelations,
     modifierOptions,

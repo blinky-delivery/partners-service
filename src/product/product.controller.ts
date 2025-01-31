@@ -36,8 +36,9 @@ export class ProductController {
     @Get('/menu')
     async getProductsByMenu(
         @Query('menu_id') menuId: string,
+        @Query('product_name_query') productNameQuery: string
     ) {
-        return this.productService.getProductsByMenuId(menuId)
+        return this.productService.getProductsByNameSearchAndMenuId(menuId, productNameQuery)
     }
 
     @Put('sort')

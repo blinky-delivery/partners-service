@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
 
@@ -173,23 +173,30 @@ export class ProductService {
         return newOrder;
     }
 
-    async getProductsByMenuId(menuId: string) {
+    async getProductsByNameSearchAndMenuId(menuId: string, productNameQuery: string) {
         try {
-            this.logger.log(`Fetching products for menu ID: ${menuId}`);
+            this.logger.log(`Fetching products for menu ID: ${menuId} with product name query: ${productNameQuery}`);
             const products = await this.drizzleService.partnersDb
                 .query
                 .products
                 .findMany({
-                    where: (fields, { eq }) => eq(fields.menuId, menuId),
+                    where: (fields, { eq, like }) => {
+                        const menuConditon = eq(fields.menuId, menuId)
+                        if (productNameQuery.length) {
+                            return menuConditon
+                        } else {
+                            return and(menuConditon, like(fields.name, `%${productNameQuery}%`))
+                        }
+                    },
                     orderBy: (fields, { asc }) => asc(fields.sort),
                     with: {
                         primaryImage: true,
                     }
                 });
-            this.logger.log(`Products fetched successfully for menu ID: ${menuId}`);
+            this.logger.log(`Products fetched successfully for menu ID: ${menuId} with product name query: ${productNameQuery}`);
             return products;
         } catch (error) {
-            this.logger.error(`Error fetching products for menu ID: ${menuId}`, error);
+            this.logger.error(`Error fetching products for menu ID: ${menuId} with product name query: ${productNameQuery}`, error);
             throw error;
         }
     }

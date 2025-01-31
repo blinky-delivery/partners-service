@@ -1,4 +1,4 @@
-import { Body, Controller, Logger, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Query, UseGuards } from '@nestjs/common';
 import { ClerkAuthGuard } from 'src/auth/clerk-auth.guard';
 import { ModifierService } from './modifier.service';
 import { CreateModiferDto } from './modifier.dto';
@@ -20,6 +20,13 @@ export class ModifierController {
         @Body() dto: CreateModiferDto,
     ) {
         return this.modifierService.createModifer(dto)
+    }
+
+    @Get()
+    async getModifiersByStoreSite(
+        @Query('site_id') siteId: string
+    ) {
+        return this.modifierService.getModifiersByStoreSiteId(siteId)
     }
 
 

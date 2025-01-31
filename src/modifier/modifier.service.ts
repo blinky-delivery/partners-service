@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
+import { eq } from 'drizzle-orm';
+
 
 export interface CreateModifierParams {
     menuId: string
@@ -35,10 +37,14 @@ export class ModifierService {
                     where: ((fields, { eq }) => eq(fields.storeSiteId, storeSiteId)),
                     with: {
                         options: true,
+                        modifiersToProducts: {
+                            with: {
+                                product: true
+                            }
+                        }
                     }
                 })
-            const d = modifiers[0]
-            d.options
+
             return modifiers;
         } catch (error) {
             this.logger.error('Failed to fetch modifiers', error);
@@ -86,6 +92,8 @@ export class ModifierService {
             }
         })
     }
+
+
 
 
 
