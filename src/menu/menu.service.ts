@@ -26,6 +26,8 @@ export interface CreateMenuCategoryParams {
     name: string
 }
 
+
+
 type InsertMenuParams = typeof partnersSchema.menus.$inferInsert
 @Injectable()
 export class MenuService {

@@ -5,7 +5,6 @@ import { RequestUser } from 'src/users/users.types';
 import { MenuService } from './menu.service';
 import { StoreService } from 'src/store/store.service';
 import { CreateDraftMenuDto, CreateMenuCategoryDto, ResortMenuCategoriesDto, UpdateMenuDto } from './menu.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('menu')
 @UseGuards(ClerkAuthGuard)

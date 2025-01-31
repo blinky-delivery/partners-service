@@ -33,6 +33,13 @@ export class ProductController {
         return this.productService.getProductsByMenuCategory(menuCategoryId)
     }
 
+    @Get('/menu')
+    async getProductsByMenu(
+        @Query('menu_id') menuId: string,
+    ) {
+        return this.productService.getProductsByMenuId(menuId)
+    }
+
     @Put('sort')
     async resortMenuCategories(@CurrentUser() user: RequestUser, @Body() dto: ResortProductsDto) {
         return this.productService.resortProducts(dto.menuCategoryId, dto.newOrder)

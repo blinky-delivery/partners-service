@@ -42,9 +42,39 @@ CREATE TABLE "menus" (
 	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "modifer_options" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"modifer_id" uuid NOT NULL,
+	"name" varchar(255) NOT NULL,
+	"sort" integer NOT NULL,
+	"price" double precision NOT NULL,
+	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "modifiers" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"store_site_id" uuid NOT NULL,
+	"menu_id" uuid,
+	"name" varchar(255) NOT NULL,
+	"required" boolean NOT NULL,
+	"multiple_allowed" boolean NOT NULL,
+	"min_quantity" integer NOT NULL,
+	"max_quantity" integer NOT NULL,
+	"max_free_quantity" integer,
+	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "modifiers_to_products" (
+	"modifier_id" uuid NOT NULL,
+	"product_id" uuid NOT NULL,
+	CONSTRAINT "modifiers_to_products_modifier_id_product_id_pk" PRIMARY KEY("modifier_id","product_id")
+);
+--> statement-breakpoint
 CREATE TABLE "products" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"store_id" uuid NOT NULL,
+	"menu_id" uuid NOT NULL,
 	"menu_category_id" uuid NOT NULL,
 	"primary_image_id" uuid,
 	"name" varchar(255) NOT NULL,
@@ -52,6 +82,7 @@ CREATE TABLE "products" (
 	"price" double precision NOT NULL,
 	"tax_rate" double precision,
 	"enabled" boolean DEFAULT true NOT NULL,
+	"sort" integer DEFAULT 1 NOT NULL,
 	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -127,7 +158,13 @@ ALTER TABLE "images" ADD CONSTRAINT "images_store_site_id_store_sites_id_fk" FOR
 ALTER TABLE "menu_categories" ADD CONSTRAINT "menu_categories_menu_id_menus_id_fk" FOREIGN KEY ("menu_id") REFERENCES "public"."menus"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "menus" ADD CONSTRAINT "menus_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "menus" ADD CONSTRAINT "menus_store_site_id_store_sites_id_fk" FOREIGN KEY ("store_site_id") REFERENCES "public"."store_sites"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "modifer_options" ADD CONSTRAINT "modifer_options_modifer_id_modifiers_id_fk" FOREIGN KEY ("modifer_id") REFERENCES "public"."modifiers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "modifiers" ADD CONSTRAINT "modifiers_store_site_id_store_sites_id_fk" FOREIGN KEY ("store_site_id") REFERENCES "public"."store_sites"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "modifiers" ADD CONSTRAINT "modifiers_menu_id_menus_id_fk" FOREIGN KEY ("menu_id") REFERENCES "public"."menus"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "modifiers_to_products" ADD CONSTRAINT "modifiers_to_products_modifier_id_modifiers_id_fk" FOREIGN KEY ("modifier_id") REFERENCES "public"."modifiers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "modifiers_to_products" ADD CONSTRAINT "modifiers_to_products_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "products" ADD CONSTRAINT "products_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "products" ADD CONSTRAINT "products_menu_id_menus_id_fk" FOREIGN KEY ("menu_id") REFERENCES "public"."menus"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "products" ADD CONSTRAINT "products_menu_category_id_menu_categories_id_fk" FOREIGN KEY ("menu_category_id") REFERENCES "public"."menu_categories"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "products" ADD CONSTRAINT "products_primary_image_id_images_id_fk" FOREIGN KEY ("primary_image_id") REFERENCES "public"."images"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "store_sites" ADD CONSTRAINT "store_sites_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

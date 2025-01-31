@@ -15,6 +15,7 @@ import { ResponseFormatInterceptor } from './response/response.interceptor';
 import { MenuModule } from './menu/menu.module';
 import { ProductModule } from './product/product.module';
 import { ImageModule } from './image/image.module';
+import { ModifierModule } from './modifier/modifier.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { ImageModule } from './image/image.module';
     MenuModule,
     ProductModule,
     ImageModule,
+    ModifierModule,
   ],
   controllers: [],
   providers: [

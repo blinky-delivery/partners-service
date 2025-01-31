@@ -43,7 +43,6 @@ export class ProductService {
                         primaryImage: true,
                     }
                 });
-
             this.logger.log(`Products fetched successfully for menu category ID: ${menuCategoryId}`);
             return products;
         } catch (error) {
@@ -85,8 +84,9 @@ export class ProductService {
             const [createdProduct] = await this.drizzleService.partnersDb
                 .insert(partnersSchema.products)
                 .values({
-                    menuCategoryId: params.menuCategoryId,
                     storeId: menu.storeId,
+                    menuId: menu.id,
+                    menuCategoryId: params.menuCategoryId,
                     name: params.name,
                     price: params.price,
                     description: params.description,
@@ -120,6 +120,7 @@ export class ProductService {
 
             let updateProductQuery: UpdateProductQuery = {
                 storeId: product.storeId,
+                menuId: product.menuId,
                 menuCategoryId: params.menuCategoryId,
                 primaryImageId: params.primaryImageId,
                 name: params.name,
@@ -170,6 +171,27 @@ export class ProductService {
         this.logger.log(`Successfully resorted products for menu category ${menuCategoryId}`);
 
         return newOrder;
+    }
+
+    async getProductsByMenuId(menuId: string) {
+        try {
+            this.logger.log(`Fetching products for menu ID: ${menuId}`);
+            const products = await this.drizzleService.partnersDb
+                .query
+                .products
+                .findMany({
+                    where: (fields, { eq }) => eq(fields.menuId, menuId),
+                    orderBy: (fields, { asc }) => asc(fields.sort),
+                    with: {
+                        primaryImage: true,
+                    }
+                });
+            this.logger.log(`Products fetched successfully for menu ID: ${menuId}`);
+            return products;
+        } catch (error) {
+            this.logger.error(`Error fetching products for menu ID: ${menuId}`, error);
+            throw error;
+        }
     }
 
 }

@@ -1,5 +1,5 @@
 
-import { pgTable, uuid, varchar, timestamp, serial, boolean, integer, text, doublePrecision, jsonb, json } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, serial, boolean, integer, text, doublePrecision, jsonb, json, primaryKey } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
 
 // Roles table
@@ -163,6 +163,11 @@ export const products = pgTable('products', {
         .references(() => stores.id, {
             onDelete: 'cascade',
         }),
+    menuId: uuid('menu_id')
+        .notNull()
+        .references(() => menus.id, {
+            onDelete: 'cascade',
+        }),
     menuCategoryId: uuid('menu_category_id')
         .references(() => menuCategories.id)
         .notNull(),
@@ -182,15 +187,72 @@ export const products = pgTable('products', {
         .notNull(),
 });
 
+export const modifiers = pgTable('modifiers', {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+    storeSiteId: uuid('store_site_id')
+        .notNull()
+        .references(() => storeSites.id, {
+            onDelete: 'cascade',
+        }),
+    menuId: uuid('menu_id').references(() => menus.id),
+    name: varchar('name', { length: 255 }).notNull(),
+    required: boolean('required').notNull(),
+    multipleAllowed: boolean('multiple_allowed').notNull(),
+    minQuantity: integer("min_quantity").notNull(),
+    maxQuantity: integer("max_quantity").notNull(),
+    maxFreeQuantity: integer("max_free_quantity"),
+    createdAt: timestamp('created_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+});
+
+export const modifiersToProducts = pgTable('modifiers_to_products', {
+    modiferId: uuid('modifier_id').notNull().references(() => modifiers.id),
+    prdocutId: uuid('product_id').notNull().references(() => products.id),
+},
+    (t) => ({
+        pk: primaryKey({ columns: [t.modiferId, t.prdocutId] })
+    })
+)
+
+export const modifiersToProductsRelations = relations(modifiersToProducts, ({ one }) => ({
+    product: one(products, {
+        fields: [modifiersToProducts.prdocutId],
+        references: [products.id],
+    }),
+    modifer: one(modifiers, {
+        fields: [modifiersToProducts.modiferId],
+        references: [modifiers.id],
+    })
+}))
 
 export const productsRelations = relations(products, ({ many, one }) => ({
     primaryImage: one(images, { fields: [products.primaryImageId], references: [images.id] }),
+    modifiersToProducts: many(modifiersToProducts),
 }))
 
+export const modifiersRelations = relations(modifiers, ({ many }) => ({
+    modifiersToProducts: many(modifiersToProducts),
+    options: many(modifierOptions),
+}))
+
+export const modifierOptions = pgTable('modifer_options', {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+    modiferId: uuid('modifer_id').notNull().references(() => modifiers.id),
+    name: varchar('name', { length: 255 }).notNull(),
+    sort: integer("sort").notNull(),
+    price: doublePrecision('price').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+})
 
 export const partnersSchema = {
     storeUsers,
-    customers: store_customers,
+    store_customers,
     roles,
     cities,
     storeTypes,
@@ -199,6 +261,10 @@ export const partnersSchema = {
     menus,
     menuCategories,
     images,
-    productsRelations,
     products,
+    productsRelations,
+    modifiers,
+    modifiersToProductsRelations,
+    modifiersRelations,
+    modifierOptions,
 };
