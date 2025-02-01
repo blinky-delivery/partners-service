@@ -1,5 +1,5 @@
 {
-  "id": "5d21af62-f5a2-4342-9d3b-30304e2df870",
+  "id": "12c24723-620a-42d5-8e49-3b7df5bd1a19",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -325,8 +325,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.modifer_options": {
-      "name": "modifer_options",
+    "public.modifier_options": {
+      "name": "modifier_options",
       "schema": "",
       "columns": {
         "id": {
@@ -336,8 +336,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "modifer_id": {
-          "name": "modifer_id",
+        "modifier_id": {
+          "name": "modifier_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -370,12 +370,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "modifer_options_modifer_id_modifiers_id_fk": {
-          "name": "modifer_options_modifer_id_modifiers_id_fk",
-          "tableFrom": "modifer_options",
+        "modifier_options_modifier_id_modifiers_id_fk": {
+          "name": "modifier_options_modifier_id_modifiers_id_fk",
+          "tableFrom": "modifier_options",
           "tableTo": "modifiers",
           "columnsFrom": [
-            "modifer_id"
+            "modifier_id"
           ],
           "columnsTo": [
             "id"

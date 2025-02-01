@@ -211,11 +211,11 @@ export const modifiers = pgTable('modifiers', {
 });
 
 export const modifiersToProducts = pgTable('modifiers_to_products', {
-    modiferId: uuid('modifier_id').notNull().references(() => modifiers.id),
+    modifierId: uuid('modifier_id').notNull().references(() => modifiers.id),
     prdocutId: uuid('product_id').notNull().references(() => products.id),
 },
     (t) => ({
-        pk: primaryKey({ columns: [t.modiferId, t.prdocutId] })
+        pk: primaryKey({ columns: [t.modifierId, t.prdocutId] })
     })
 )
 
@@ -225,7 +225,7 @@ export const modifiersToProductsRelations = relations(modifiersToProducts, ({ on
         references: [products.id],
     }),
     modifer: one(modifiers, {
-        fields: [modifiersToProducts.modiferId],
+        fields: [modifiersToProducts.modifierId],
         references: [modifiers.id],
     })
 }))
@@ -240,9 +240,9 @@ export const modifiersRelations = relations(modifiers, ({ many }) => ({
     options: many(modifierOptions),
 }))
 
-export const modifierOptions = pgTable('modifer_options', {
+export const modifierOptions = pgTable('modifier_options', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-    modiferId: uuid('modifer_id').notNull().references(() => modifiers.id),
+    modiferId: uuid('modifier_id').notNull().references(() => modifiers.id),
     name: varchar('name', { length: 255 }).notNull(),
     sort: integer("sort").notNull(),
     price: doublePrecision('price').notNull(),

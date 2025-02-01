@@ -75,6 +75,57 @@ export class MenuService {
         }
     }
 
+    async getOrCreateStoreSiteDefaultMenu(siteId: string) {
+        this.logger.log(`Getting or creating default menu for site id ${siteId}`)
+        try {
+            const storeSite = await this.storeService.getSiteById(siteId)
+            if (storeSite) {
+                this.logger.log(`Found store site with id ${siteId}`)
+                const menu = await this.drizzleService.partnersDb.query
+                    .menus
+                    .findFirst({
+                        where: (menus, { eq }) => eq(menus.id, storeSite.id),
+                    })
+                if (menu) {
+                    this.logger.log(`Found existing menu for site id ${siteId}`)
+                    return menu
+                } else {
+                    this.logger.log(`No existing menu found for site id ${siteId}, creating default menu`)
+                    const result = await this.drizzleService.partnersDb
+                        .insert(partnersSchema.menus)
+                        .values({
+                            id: storeSite.id, // This is really important !!!
+                            storeId: storeSite.storeId,
+                            name: '',
+                            description: '',
+                            enabled: true,
+                            sort: 1,
+                            status: Menutatus.APPROVED,
+                        }).returning()
+                    const defaultMenu = result.pop()
+
+                    if (defaultMenu) {
+                        this.logger.log(`Created default menu for site id ${siteId}`)
+                        return defaultMenu
+                    } else {
+                        throw new InternalServerErrorException('Failed to create default menu')
+                    }
+                }
+            } else {
+                throw new NotFoundException(`Store site with id ${siteId} not found`)
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error(`Failed to get or create default menu for site id ${siteId}`, error.stack)
+            } else {
+                this.logger.error(`Failed to get or create default menu for site id ${siteId}`)
+            }
+            throw error
+        }
+    }
+
+
+
 
 
     async createMenu(params: CreateMenuParams, isMainMenu = false) {

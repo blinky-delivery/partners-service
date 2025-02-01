@@ -1,16 +1,20 @@
--- Drop tables in reverse order of creation to avoid foreign key constraint errors
+SET session_replication_role = 'replica'; -- Disable foreign key checks (PostgreSQL)
 
--- Drop tables with foreign key dependencies first
-DROP TABLE IF EXISTS "images" CASCADE;
-DROP TABLE IF EXISTS "products" CASCADE;
-DROP TABLE IF EXISTS "menu_categories" CASCADE;
-DROP TABLE IF EXISTS "menus" CASCADE;
-DROP TABLE IF EXISTS "store_sites" CASCADE;
-DROP TABLE IF EXISTS "stores" CASCADE;
-DROP TABLE IF EXISTS "store_users" CASCADE;
-DROP TABLE IF EXISTS "store_customers" CASCADE;
+DROP TABLE IF EXISTS 
+    store_users, 
+    store_customers, 
+    stores, 
+    store_sites, 
+    store_types, 
+    roles, 
+    products, 
+    modifiers_to_products, 
+    modifiers, 
+    modifier_options, 
+    menus, 
+    menu_categories, 
+    images, 
+    cities 
+    CASCADE;
 
--- Drop tables without foreign key dependencies
-DROP TABLE IF EXISTS "cities" CASCADE;
-DROP TABLE IF EXISTS "roles" CASCADE;
-DROP TABLE IF EXISTS "store_types" CASCADE;
+SET session_replication_role = 'origin'; -- Re-enable foreign key checks (PostgreSQL)

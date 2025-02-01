@@ -17,14 +17,21 @@ export class MenuController {
         return this.menuSerice.getMenuById(menuId)
     }
 
-    @Get("store_menus")
-    async getStoreMenus(@CurrentUser() user: RequestUser, @Query("store_id") storeId: string) {
-        const authorized = await this.storeService.isUserStoreOwnerByExtAuthId(storeId, user.clerkId)
-        if (authorized) {
-            return this.menuSerice.getMenusByStoreId(storeId)
-        } else {
-            throw new UnauthorizedException('Forbidden');
-        }
+
+    // Will not be used for now
+    // @Get("store_menus")
+    // async getStoreMenus(@CurrentUser() user: RequestUser, @Query("store_id") storeId: string) {
+    //     const authorized = await this.storeService.isUserStoreOwnerByExtAuthId(storeId, user.clerkId)
+    //     if (authorized) {
+    //         return this.menuSerice.getMenusByStoreId(storeId)
+    //     } else {
+    //         throw new UnauthorizedException('Forbidden');
+    //     }
+    // }
+
+    @Get("site_menu")
+    async getStoreSiteMenu(@CurrentUser() user: RequestUser, @Query("site_id") siteId: string) {
+        return this.menuSerice.getOrCreateStoreSiteDefaultMenu(siteId)
     }
 
     @Post()

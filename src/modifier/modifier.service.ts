@@ -86,7 +86,7 @@ export class ModifierService {
                     this.logger.log('Inserting modifier associated products')
                     for (const [_, productId] of params.productsIds.entries()) {
                         await tx.insert(partnersSchema.modifiersToProducts).values({
-                            modiferId: modifier.id,
+                            modifierId: modifier.id,
                             prdocutId: productId,
                         })
                     }
