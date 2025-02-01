@@ -73,7 +73,7 @@ export class ModifierService {
                 const modiferOptions = params.options
 
                 if (modifier && modiferOptions.length) {
-                    this.logger.log('Inserting modifier options');
+                    this.logger.log('Inserting modifier options')
                     for (const [index, option] of modiferOptions.entries()) {
                         await tx.insert(partnersSchema.modifierOptions)
                             .values({
@@ -82,6 +82,13 @@ export class ModifierService {
                                 price: option.price,
                                 sort: index + 1
                             })
+                    }
+                    this.logger.log('Inserting modifier associated products')
+                    for (const [_, productId] of params.productsIds.entries()) {
+                        await tx.insert(partnersSchema.modifiersToProducts).values({
+                            modiferId: modifier.id,
+                            prdocutId: productId,
+                        })
                     }
                 }
                 this.logger.log('Transaction completed successfully');

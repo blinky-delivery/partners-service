@@ -1,6 +1,7 @@
 
 import { pgTable, uuid, varchar, timestamp, serial, boolean, integer, text, doublePrecision, jsonb, json, primaryKey } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
+import { options } from 'joi';
 
 // Roles table
 export const roles = pgTable('roles', {
@@ -250,6 +251,13 @@ export const modifierOptions = pgTable('modifer_options', {
         .notNull(),
 })
 
+export const optoinsRelations = relations(modifierOptions, ({ one }) => ({
+    modifier: one(modifiers, {
+        fields: [modifierOptions.modiferId],
+        references: [modifiers.id],
+    })
+}))
+
 export const partnersSchema = {
     storeUsers,
     store_customers,
@@ -268,4 +276,5 @@ export const partnersSchema = {
     modifiersToProductsRelations,
     modifiersRelations,
     modifierOptions,
+    optoinsRelations,
 };
