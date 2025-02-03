@@ -16,6 +16,7 @@ import { MenuModule } from './menu/menu.module';
 import { ProductModule } from './product/product.module';
 import { ImageModule } from './image/image.module';
 import { ModifierModule } from './modifier/modifier.module';
+import { AvailabilityModule } from './availability/availability.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { ModifierModule } from './modifier/modifier.module';
     ProductModule,
     ImageModule,
     ModifierModule,
+    AvailabilityModule,
   ],
   controllers: [],
   providers: [

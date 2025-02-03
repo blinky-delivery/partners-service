@@ -1,5 +1,5 @@
 
-import { pgTable, uuid, varchar, timestamp, serial, boolean, integer, text, doublePrecision, jsonb, json, primaryKey } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, serial, boolean, integer, text, doublePrecision, jsonb, json, primaryKey, smallint, time, unique, date } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
 import { options } from 'joi';
 
@@ -258,6 +258,50 @@ export const optoinsRelations = relations(modifierOptions, ({ one }) => ({
     })
 }))
 
+export const storeAvailability = pgTable('store_availability', {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+    storeSiteId: uuid('store_site_id')
+        .notNull()
+        .references(() => storeSites.id, {
+            onDelete: 'cascade',
+        }),
+    dayOfWeek: smallint('day_of_week').notNull(),
+    timeRangeIndex: smallint('time_range_index').notNull(),
+    openTime: time('open_time'),
+    closTime: time('close_time'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+}, (t) => ({
+    unq: unique().on(t.storeSiteId, t.dayOfWeek, t.timeRangeIndex)
+}))
+
+export const storeSpecialHours = pgTable('store_special_hours', {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+    storeSiteId: uuid('store_site_id')
+        .notNull()
+        .references(() => storeSites.id, {
+            onDelete: 'cascade',
+        }),
+    specialDate: date('special_date').notNull(),
+    timeRangeIndex: smallint('time_range_index').notNull(),
+    openTime: time('open_time'),
+    closTime: time('close_time'),
+    isClosed: boolean('is_closed').notNull(),
+    reason: text('reason'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+}, (t) => ({
+    unq: unique().on(t.storeSiteId, t.specialDate, t.timeRangeIndex)
+}))
+
 export const partnersSchema = {
     storeUsers,
     store_customers,
@@ -277,4 +321,6 @@ export const partnersSchema = {
     modifiersRelations,
     modifierOptions,
     optoinsRelations,
+    storeAvailability,
+    storeSpecialHours
 };
