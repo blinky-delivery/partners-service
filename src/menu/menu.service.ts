@@ -26,7 +26,11 @@ export interface CreateMenuCategoryParams {
     name: string
 }
 
-
+export interface UpdateMenuCategoryParams {
+    id: string
+    name: string
+    description: string
+}
 
 type InsertMenuParams = typeof partnersSchema.menus.$inferInsert
 @Injectable()
@@ -124,10 +128,6 @@ export class MenuService {
         }
     }
 
-
-
-
-
     async createMenu(params: CreateMenuParams, isMainMenu = false) {
 
         let insertMenuParams: InsertMenuParams = {
@@ -223,6 +223,36 @@ export class MenuService {
                 this.logger.error('Failed to create menu category', error.stack)
             } else {
                 this.logger.error('Failed to create menu category')
+            }
+            throw error
+        }
+    }
+
+
+    async updateMenuCategory(params: UpdateMenuCategoryParams) {
+        try {
+            const updateResult = await this.drizzleService.partnersDb
+                .update(partnersSchema.menuCategories)
+                .set({
+                    name: params.name,
+                    description: params.description,
+                }).where(eq(partnersSchema.menuCategories.id, params.id))
+                .returning()
+            const updatedCategory = updateResult.pop()
+
+            if (updatedCategory) {
+                this.logger.log(`Menu category with id ${params.id} updated successfully`)
+                return updatedCategory
+            } else {
+                this.logger.error(`Failed to update menu category with id ${params.id}`)
+                throw new InternalServerErrorException('Failed to update menu category')
+            }
+
+        } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error(`Failed to update menu category with id ${params.id}`, error.stack)
+            } else {
+                this.logger.error(`Failed to update menu category with id ${params.id}`)
             }
             throw error
         }

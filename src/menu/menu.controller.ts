@@ -4,7 +4,7 @@ import { CurrentUser } from 'src/auth/current-user.decorator';
 import { RequestUser } from 'src/users/users.types';
 import { MenuService } from './menu.service';
 import { StoreService } from 'src/store/store.service';
-import { CreateDraftMenuDto, CreateMenuCategoryDto, ResortMenuCategoriesDto, UpdateMenuDto } from './menu.dto';
+import { CreateDraftMenuDto, CreateMenuCategoryDto, ResortMenuCategoriesDto, UpdateMenuCateogryDto, UpdateMenuDto } from './menu.dto';
 
 @Controller('menu')
 @UseGuards(ClerkAuthGuard)
@@ -69,6 +69,11 @@ export class MenuController {
     @Get('categories')
     async getMenuCategories(@CurrentUser() user: RequestUser, @Query('menu_id') menuId: string) {
         return this.menuSerice.getMenuCategories(menuId)
+    }
+
+    @Put('categories')
+    async updateMenuCateogry(@Body() dto: UpdateMenuCateogryDto) {
+        return this.menuSerice.updateMenuCategory(dto)
     }
 
     @Put('categories/sort')

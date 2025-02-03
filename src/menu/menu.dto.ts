@@ -22,3 +22,9 @@ export interface ResortMenuCategoriesDto {
     menuId: string
     newOrder: string[]
 }
+
+export interface UpdateMenuCateogryDto {
+    id: string
+    name: string
+    description: string
+}
