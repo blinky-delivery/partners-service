@@ -267,8 +267,8 @@ export const storeAvailability = pgTable('store_availability', {
         }),
     dayOfWeek: smallint('day_of_week').notNull(),
     timeRangeIndex: smallint('time_range_index').notNull(),
-    openTime: time('open_time'),
-    closTime: time('close_time'),
+    openTime: time('open_time').notNull(),
+    closTime: time('close_time').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true })
         .default(sql`CURRENT_TIMESTAMP`)
         .notNull(),

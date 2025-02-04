@@ -23,24 +23,6 @@ export class AvailabilityService {
     ) { }
 
 
-    async createDefaultSiteAvailability(siteId: string) {
-        await this.drizzleService.partnersDb.transaction(async (tx) => {
-            try {
-                for (let dayOfWeek = 1; dayOfWeek <= 7; dayOfWeek++) {
-                    await tx
-                        .insert(partnersSchema.storeAvailability)
-                        .values({
-                            storeSiteId: siteId,
-                            dayOfWeek: dayOfWeek,
-                            timeRangeIndex: 1,
-                        })
-                }
-            } catch (error) {
-                tx.rollback()
-            }
-        })
-    }
-
     //TODO: It better to group the result by the day of week
     async getStoreSiteAvailability(siteId: string) {
         try {
