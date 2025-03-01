@@ -1,7 +1,6 @@
 
-import { pgTable, uuid, varchar, timestamp, serial, boolean, integer, text, doublePrecision, jsonb, json, primaryKey, smallint, time, unique, date } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, serial, boolean, integer, text, doublePrecision, jsonb, json, primaryKey, smallint, time, unique, date, geometry } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
-import { options } from 'joi';
 
 // Roles table
 export const roles = pgTable('roles', {
@@ -86,6 +85,7 @@ export const storeSites = pgTable('store_sites', {
     approved: boolean('approved').default(false).notNull(),
     latitude: doublePrecision('latitude'),
     longitude: doublePrecision('longitude'),
+    location: geometry('location', { type: 'point', mode: 'xy', srid: 4326 }),
     name: varchar('name', { length: 255 }),
     cityId: integer('city_id')
         .notNull()

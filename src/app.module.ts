@@ -17,6 +17,8 @@ import { ProductModule } from './product/product.module';
 import { ImageModule } from './image/image.module';
 import { ModifierModule } from './modifier/modifier.module';
 import { AvailabilityModule } from './availability/availability.module';
+import { QueryService } from './query/query.service';
+import { QueryController } from './query/query.controller';
 
 @Module({
   imports: [
@@ -82,12 +84,13 @@ import { AvailabilityModule } from './availability/availability.module';
     ModifierModule,
     AvailabilityModule,
   ],
-  controllers: [],
+  controllers: [QueryController],
   providers: [
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseFormatInterceptor,
-    }
+    },
+    QueryService
   ],
 })
 export class AppModule { }

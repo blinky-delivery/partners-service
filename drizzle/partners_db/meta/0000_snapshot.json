@@ -1,5 +1,5 @@
 {
-  "id": "12c24723-620a-42d5-8e49-3b7df5bd1a19",
+  "id": "d531c999-38b2-4763-bab6-68c8eb4b5e4a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -735,6 +735,94 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.store_availability": {
+      "name": "store_availability",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "store_site_id": {
+          "name": "store_site_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "day_of_week": {
+          "name": "day_of_week",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "time_range_index": {
+          "name": "time_range_index",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "open_time": {
+          "name": "open_time",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "close_time": {
+          "name": "close_time",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "store_availability_store_site_id_store_sites_id_fk": {
+          "name": "store_availability_store_site_id_store_sites_id_fk",
+          "tableFrom": "store_availability",
+          "tableTo": "store_sites",
+          "columnsFrom": [
+            "store_site_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "store_availability_store_site_id_day_of_week_time_range_index_unique": {
+          "name": "store_availability_store_site_id_day_of_week_time_range_index_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "store_site_id",
+            "day_of_week",
+            "time_range_index"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.store_sites": {
       "name": "store_sites",
       "schema": "",
@@ -768,6 +856,12 @@
         "longitude": {
           "name": "longitude",
           "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location": {
+          "name": "location",
+          "type": "geometry(point)",
           "primaryKey": false,
           "notNull": false
         },
@@ -847,6 +941,106 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.store_special_hours": {
+      "name": "store_special_hours",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "store_site_id": {
+          "name": "store_site_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "special_date": {
+          "name": "special_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "time_range_index": {
+          "name": "time_range_index",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "open_time": {
+          "name": "open_time",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "close_time": {
+          "name": "close_time",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_closed": {
+          "name": "is_closed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "store_special_hours_store_site_id_store_sites_id_fk": {
+          "name": "store_special_hours_store_site_id_store_sites_id_fk",
+          "tableFrom": "store_special_hours",
+          "tableTo": "store_sites",
+          "columnsFrom": [
+            "store_site_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "store_special_hours_store_site_id_special_date_time_range_index_unique": {
+          "name": "store_special_hours_store_site_id_special_date_time_range_index_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "store_site_id",
+            "special_date",
+            "time_range_index"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
