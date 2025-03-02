@@ -19,6 +19,7 @@ import { ModifierModule } from './modifier/modifier.module';
 import { AvailabilityModule } from './availability/availability.module';
 import { QueryService } from './query/query.service';
 import { QueryController } from './query/query.controller';
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { QueryController } from './query/query.controller';
     ImageModule,
     ModifierModule,
     AvailabilityModule,
+    CustomerModule,
   ],
   controllers: [QueryController],
   providers: [

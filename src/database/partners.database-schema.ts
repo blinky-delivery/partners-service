@@ -23,11 +23,13 @@ export const storeUsers = pgTable('store_users', {
         .notNull(),
 });
 
-export const store_customers = pgTable('store_customers', {
+export const customers = pgTable('customers', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
     extAuthId: varchar('ext_auth_id', { length: 255 }),
     email: varchar('email', { length: 255 }).notNull().unique(),
-    name: varchar('name', { length: 255 }).notNull(),
+    username: varchar('username', { length: 255 }).notNull(),
+    fcmToken: varchar('fcm_token'),
+    avatar: varchar('avatar'),
     phoneNumber: varchar('phone_number', { length: 20 }),
     createdAt: timestamp('created_at', { withTimezone: true })
         .default(sql`CURRENT_TIMESTAMP`)
@@ -313,7 +315,7 @@ export const storeSpecialHours = pgTable('store_special_hours', {
 
 export const partnersSchema = {
     storeUsers,
-    store_customers,
+    customers,
     roles,
     cities,
     storeTypes,
