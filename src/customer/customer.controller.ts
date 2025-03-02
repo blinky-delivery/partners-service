@@ -1,8 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Put } from '@nestjs/common';
 import { CustomerService } from './customer.service';
-import { CreateCustomerDto } from './customer.dto';
+import { CreateCustomerDto, UpdateCustomerDto } from './customer.dto';
 
-@Controller('customer')
+@Controller('customers')
 export class CustomerController {
     constructor(
         private readonly customerService: CustomerService
@@ -11,8 +11,15 @@ export class CustomerController {
 
     @Post()
     async getOrCreateCustomer(
-        @Body() customerDto: CreateCustomerDto
+        @Body() dto: CreateCustomerDto
     ) {
-        return this.customerService.getOrCreateCustomer(customerDto)
+        return this.customerService.getOrCreateCustomer(dto)
+    }
+
+    @Put()
+    async updateCustomer(
+        @Body() dto: UpdateCustomerDto
+    ) {
+        return this.customerService.updateCustomer({ ...dto, extAuthId: '' })
     }
 }

@@ -1,4 +1,5 @@
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
 
@@ -6,6 +7,14 @@ interface CreateCustomerParams {
     extAuthId: string
     username: string
     email: string
+    phoneNumber: string | null
+    avatar: string | null
+    fcmToken: string | null
+}
+
+interface UpdateCustomerParams {
+    extAuthId: string
+    username: string
     phoneNumber: string | null
     avatar: string | null
     fcmToken: string | null
@@ -49,6 +58,31 @@ export class CustomerService {
             } else {
                 throw new InternalServerErrorException()
             }
+
+        } catch (error) {
+            throw new InternalServerErrorException()
+        }
+    }
+
+    async updateCustomer(params: UpdateCustomerParams) {
+        try {
+
+            const result = await this.drizzleService.partnersDb
+                .update(partnersSchema.customers)
+                .set({
+                    avatar: params.avatar,
+                    phoneNumber: params.phoneNumber,
+                    fcmToken: params.fcmToken,
+                    username: params.username,
+                }).where(eq(partnersSchema.customers.extAuthId, params.extAuthId))
+                .returning()
+
+            const updatedCustomer = result.pop()
+
+            if (!updatedCustomer) {
+                throw new InternalServerErrorException()
+            }
+            return updatedCustomer
 
         } catch (error) {
             throw new InternalServerErrorException()
