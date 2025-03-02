@@ -243,6 +243,7 @@ export const modifiersToProductsRelations = relations(modifiersToProducts, ({ on
 
 export const productsRelations = relations(products, ({ many, one }) => ({
     primaryImage: one(images, { fields: [products.primaryImageId], references: [images.id] }),
+    menuCategory: one(menuCategories, { fields: [products.menuCategoryId], references: [menuCategories.id] }),
     modifiersToProducts: many(modifiersToProducts),
 }))
 
@@ -331,6 +332,7 @@ export const partnersSchema = {
     modifiersToProductsRelations,
     modifiersRelations,
     modifierOptions,
+    menuCategoriesRelations,
     optoinsRelations,
     storeAvailability,
     storeSpecialHours

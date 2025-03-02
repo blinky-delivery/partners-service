@@ -5,7 +5,7 @@ import { QueryService } from './query.service';
 export class QueryController {
     constructor(private readonly queryService: QueryService) { }
 
-    @Get('stores')
+    @Get('sites')
     async getStoreSitesInRadius(
         @Query('latitude') latitude: number,
         @Query('longitude') longitude: number

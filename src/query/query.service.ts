@@ -3,7 +3,7 @@ import { sql } from 'drizzle-orm';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
 
-const NearbyStoresQueryRadius = 2000;
+const NearbyStoresQueryRadius = 7000;
 
 @Injectable()
 export class QueryService {
@@ -37,7 +37,7 @@ export class QueryService {
             const listing = await this.drizzleService.partnersDb.query.menuCategories.findMany({
                 where: (menuCategories, { eq }) => eq(menuCategories.menuId, siteId),
                 with: {
-                    products: true,
+                    products: true
                 },
             });
 
@@ -47,7 +47,7 @@ export class QueryService {
 
             return listing;
         } catch (error) {
-            this.logger.error(`Failed to fetch site listing for siteId: ${siteId}`);
+            this.logger.error(`Failed to fetch site listing for siteId: ${siteId}, error: ${error}`);
             throw new InternalServerErrorException('Error fetching site listing');
         }
     }
