@@ -47,7 +47,7 @@ export class QueryService {
 
             return listing;
         } catch (error) {
-            this.logger.error(`Failed to fetch site listing for siteId: ${siteId}, error: ${error}`);
+            this.logger.error(`Failed to fetch site listing for siteId: ${siteId}, error: ${error}`)
             throw new InternalServerErrorException('Error fetching site listing');
         }
     }

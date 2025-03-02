@@ -71,8 +71,18 @@ services:
       # STORAGE_S3_REGION: "eu-central-1"
       # STORAGE_S3_ROOT: "directus"
 
-    networks:
-      - postgres
+    nestjs-api:
+      build: ./nestjs-api
+      container_name: nestjs-api
+      ports:
+        - "3000:3000"
+      env_file:
+        - .env
+      depends_on:
+        - partners_db
+        - directus
+      networks:
+        - postgres
 
 networks:
   postgres:
