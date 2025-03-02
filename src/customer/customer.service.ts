@@ -4,89 +4,75 @@ import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
 
 interface CreateCustomerParams {
-    extAuthId: string
-    username: string
-    email: string
-    phoneNumber: string | null
-    avatar: string | null
-    fcmToken: string | null
+    extAuthId: string;
+    username: string;
+    email: string;
+    phoneNumber: string | null;
+    avatar: string | null;
+    fcmToken: string | null;
 }
 
 interface UpdateCustomerParams {
-    extAuthId: string
-    username: string
-    phoneNumber: string | null
-    avatar: string | null
-    fcmToken: string | null
+    extAuthId: string;
+    username: string;
+    phoneNumber: string | null;
+    avatar: string | null;
+    fcmToken: string | null;
 }
 
 @Injectable()
 export class CustomerService {
-    private readonly logger = new Logger(CustomerService.name)
+    private readonly logger = new Logger(CustomerService.name);
 
-    constructor(
-        private readonly drizzleService: DrizzleService,
-    ) { }
+    constructor(private readonly drizzleService: DrizzleService) { }
 
     async getOrCreateCustomer(params: CreateCustomerParams) {
-        const customer = this.drizzleService.partnersDb.query.customers.findFirst(
-            {
-                where: ((fields, { eq }) => eq(fields.extAuthId, params.extAuthId))
-            }
-        )
+        try {
+            const customer = await this.drizzleService.partnersDb.query.customers.findFirst({
+                where: (fields, { eq }) => eq(fields.extAuthId, params.extAuthId),
+            });
 
-        if (!customer) return this.createCustomer(params)
+            return customer ?? (await this.createCustomer(params));
+        } catch (error) {
+            this.logger.error(`Failed to get or create customer: ${error}`);
+            throw new InternalServerErrorException('Could not retrieve or create customer');
+        }
     }
 
     async createCustomer(params: CreateCustomerParams) {
         try {
             const result = await this.drizzleService.partnersDb
                 .insert(partnersSchema.customers)
-                .values({
-                    extAuthId: params.extAuthId,
-                    username: params.username,
-                    email: params.email,
-                    phoneNumber: params.phoneNumber,
-                    avatar: params.avatar,
-                    fcmToken: params.fcmToken,
-                }).returning()
+                .values(params)
+                .returning();
 
             const customer = result.pop()
 
-            if (customer) {
-                return customer
-            } else {
-                throw new InternalServerErrorException()
-            }
+            if (!customer) throw new Error('Customer creation returned empty result');
 
+            this.logger.log(`Customer created successfully: ${params.extAuthId}`);
+            return customer;
         } catch (error) {
-            throw new InternalServerErrorException()
+            this.logger.error(`Failed to create customer: ${error}`);
+            throw new InternalServerErrorException('Customer creation failed');
         }
     }
 
     async updateCustomer(params: UpdateCustomerParams) {
         try {
-
-            const result = await this.drizzleService.partnersDb
+            const [updatedCustomer] = await this.drizzleService.partnersDb
                 .update(partnersSchema.customers)
-                .set({
-                    avatar: params.avatar,
-                    phoneNumber: params.phoneNumber,
-                    fcmToken: params.fcmToken,
-                    username: params.username,
-                }).where(eq(partnersSchema.customers.extAuthId, params.extAuthId))
-                .returning()
+                .set(params)
+                .where(eq(partnersSchema.customers.extAuthId, params.extAuthId))
+                .returning();
 
-            const updatedCustomer = result.pop()
+            if (!updatedCustomer) throw new Error('No customer found for update');
 
-            if (!updatedCustomer) {
-                throw new InternalServerErrorException()
-            }
-            return updatedCustomer
-
+            this.logger.log(`Customer updated successfully: ${params.extAuthId}`);
+            return updatedCustomer;
         } catch (error) {
-            throw new InternalServerErrorException()
+            this.logger.error(`Failed to update customer: ${error}`);
+            throw new InternalServerErrorException('Customer update failed');
         }
     }
-
 }

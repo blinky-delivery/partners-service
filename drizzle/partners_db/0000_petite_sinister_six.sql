@@ -4,6 +4,19 @@ CREATE TABLE "cities" (
 	"sort" integer DEFAULT 0
 );
 --> statement-breakpoint
+CREATE TABLE "customers" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"ext_auth_id" varchar(255),
+	"email" varchar(255) NOT NULL,
+	"username" varchar(255) NOT NULL,
+	"fcm_token" varchar,
+	"avatar" varchar,
+	"phone_number" varchar(20),
+	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	CONSTRAINT "customers_email_unique" UNIQUE("email")
+);
+--> statement-breakpoint
 CREATE TABLE "images" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"file_id" uuid NOT NULL,
@@ -107,6 +120,9 @@ CREATE TABLE "store_availability" (
 CREATE TABLE "store_sites" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"store_id" uuid NOT NULL,
+	"store_type_id" integer NOT NULL,
+	"header_image" varchar,
+	"logo_image" varchar,
 	"approved" boolean DEFAULT false NOT NULL,
 	"latitude" double precision,
 	"longitude" double precision,
@@ -155,17 +171,6 @@ CREATE TABLE "store_users" (
 	CONSTRAINT "store_users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
-CREATE TABLE "store_customers" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"ext_auth_id" varchar(255),
-	"email" varchar(255) NOT NULL,
-	"name" varchar(255) NOT NULL,
-	"phone_number" varchar(20),
-	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	CONSTRAINT "store_customers_email_unique" UNIQUE("email")
-);
---> statement-breakpoint
 CREATE TABLE "stores" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"application_id" varchar NOT NULL,
@@ -196,6 +201,7 @@ ALTER TABLE "products" ADD CONSTRAINT "products_menu_category_id_menu_categories
 ALTER TABLE "products" ADD CONSTRAINT "products_primary_image_id_images_id_fk" FOREIGN KEY ("primary_image_id") REFERENCES "public"."images"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "store_availability" ADD CONSTRAINT "store_availability_store_site_id_store_sites_id_fk" FOREIGN KEY ("store_site_id") REFERENCES "public"."store_sites"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "store_sites" ADD CONSTRAINT "store_sites_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "store_sites" ADD CONSTRAINT "store_sites_store_type_id_store_types_id_fk" FOREIGN KEY ("store_type_id") REFERENCES "public"."store_types"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "store_sites" ADD CONSTRAINT "store_sites_city_id_cities_id_fk" FOREIGN KEY ("city_id") REFERENCES "public"."cities"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "store_special_hours" ADD CONSTRAINT "store_special_hours_store_site_id_store_sites_id_fk" FOREIGN KEY ("store_site_id") REFERENCES "public"."store_sites"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "stores" ADD CONSTRAINT "stores_store_type_id_store_types_id_fk" FOREIGN KEY ("store_type_id") REFERENCES "public"."store_types"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

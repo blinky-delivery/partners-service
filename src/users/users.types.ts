@@ -6,4 +6,9 @@ export enum UserRole {
 
 export type RequestUser = {
     clerkId: string;
-};
+}
+
+export type RequestCustomer = {
+    uid: string
+    email: string
+}

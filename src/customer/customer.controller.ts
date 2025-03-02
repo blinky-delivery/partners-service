@@ -1,6 +1,9 @@
-import { Body, Controller, Post, Put } from '@nestjs/common';
+import { Body, Controller, Post, Put, UseGuards } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { CreateCustomerDto, UpdateCustomerDto } from './customer.dto';
+import { FirebaseAuthGuard } from 'src/auth/firebase.guard';
+import { CurrentCustomer } from 'src/auth/current-customer.decorator';
+import { RequestCustomer } from 'src/users/users.types';
 
 @Controller('customers')
 export class CustomerController {
@@ -16,10 +19,12 @@ export class CustomerController {
         return this.customerService.getOrCreateCustomer(dto)
     }
 
+    @UseGuards(FirebaseAuthGuard)
     @Put()
     async updateCustomer(
-        @Body() dto: UpdateCustomerDto
+        @Body() dto: UpdateCustomerDto,
+        @CurrentCustomer() customer: RequestCustomer,
     ) {
-        return this.customerService.updateCustomer({ ...dto, extAuthId: '' })
+        return this.customerService.updateCustomer({ ...dto, extAuthId: customer.uid })
     }
 }

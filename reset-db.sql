@@ -2,10 +2,12 @@ SET session_replication_role = 'replica'; -- Disable foreign key checks (Postgre
 
 DROP TABLE IF EXISTS 
     store_users, 
-    store_customers, 
+    customers, 
     stores, 
     store_sites, 
     store_types, 
+    store_availability,
+    store_special_hours,
     roles, 
     products, 
     modifiers_to_products, 

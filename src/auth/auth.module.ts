@@ -6,6 +6,6 @@ import { FirebaseService } from './firebase/firebase.service';
 @Module({
     imports: [ConfigModule],
     providers: [ClerkService, FirebaseService],
-    exports: [ClerkService],
+    exports: [ClerkService, FirebaseService],
 })
 export class AuthModule { }
