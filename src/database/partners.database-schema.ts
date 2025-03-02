@@ -82,6 +82,11 @@ export const storeSites = pgTable('store_sites', {
         .references(() => stores.id, {
             onDelete: 'cascade',
         }),
+    storeTypeId: integer('store_type_id')
+        .notNull()
+        .references(() => storeTypes.id),
+    headerImage: varchar('header_image'),
+    logoImage: varchar('logo_image'),
     approved: boolean('approved').default(false).notNull(),
     latitude: doublePrecision('latitude'),
     longitude: doublePrecision('longitude'),
@@ -135,6 +140,10 @@ export const menuCategories = pgTable('menu_categories', {
     enabled: boolean('enabled').notNull(),
     sort: integer("sort").notNull(),
 })
+
+export const menuCategoriesRelations = relations(menuCategories, ({ many }) => ({
+    products: many(products),
+}))
 
 export const images = pgTable('images', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),

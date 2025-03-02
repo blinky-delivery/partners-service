@@ -1,9 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
-import { ProductService } from 'src/product/product.service';
-import { StoreService } from 'src/store/store.service';
 
 @Injectable()
 export class QueryService {
@@ -11,9 +9,7 @@ export class QueryService {
     private readonly logger = new Logger(QueryService.name)
 
     constructor(
-        private readonly storeService: StoreService,
         private readonly drizzleService: DrizzleService,
-        private readonly productService: ProductService
     ) { }
 
     async getStoreSitesInRadius(radiusInMeters: number, latitude: number, longitude: number) {
@@ -35,5 +31,32 @@ export class QueryService {
         return []
     }
 
+    async getSiteListing(siteId: string) {
+        try {
+            const listing = await this.drizzleService.partnersDb.query.menuCategories
+                .findMany({
+                    where: ((menuCategories, { eq }) => eq(menuCategories.menuId, siteId)),
+                    with: {
+                        products: true,
+                    }
+                })
+            return listing
+        } catch (error) {
+            throw new InternalServerErrorException('')
+        }
+    }
+
+    async getProductDetails(productId: string) {
+        const product = await this.drizzleService.partnersDb.query.products.findFirst({
+            where: (fields, { eq }) => eq(fields.id, productId)
+        })
+
+        if (!product) {
+            this.logger.error(`product with id ${productId} not found in database`)
+            throw new NotFoundException()
+        }
+
+        return product
+    }
 
 }
