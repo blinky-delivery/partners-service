@@ -3,60 +3,71 @@ import { sql } from 'drizzle-orm';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
 
+const NearbyStoresQueryRadius = 2000;
+
 @Injectable()
 export class QueryService {
+    private readonly logger = new Logger(QueryService.name);
 
-    private readonly logger = new Logger(QueryService.name)
+    constructor(private readonly drizzleService: DrizzleService) { }
 
-    constructor(
-        private readonly drizzleService: DrizzleService,
-    ) { }
-
-    async getStoreSitesInRadius(radiusInMeters: number, latitude: number, longitude: number) {
+    async getStoreSitesInRadius(latitude: number, longitude: number) {
         try {
-            return await this.drizzleService.partnersDb
+            const stores = await this.drizzleService.partnersDb
                 .select()
                 .from(partnersSchema.storeSites)
                 .where(sql`
-            ST_DWithin(
-              ${partnersSchema.storeSites.location}::geography,
-              ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography,
-              ${radiusInMeters}
-            )
-          `)
-        } catch (error) {
-            this.logger.error(`Failed to fetch store sites nearby location lat:${latitude} long:${longitude} in radius:${radiusInMeters}`)
-        }
+                    ST_DWithin(
+                        ${partnersSchema.storeSites.location}::geography,
+                        ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography,
+                        ${NearbyStoresQueryRadius}
+                    )
+                `);
 
-        return []
+            this.logger.log(`Fetched ${stores.length} store sites within ${NearbyStoresQueryRadius}m of (${latitude}, ${longitude})`);
+            return stores;
+        } catch (error) {
+            this.logger.error(`Failed to fetch store sites near (${latitude}, ${longitude}) in radius: ${NearbyStoresQueryRadius}`);
+            throw new InternalServerErrorException('Error fetching nearby store sites');
+        }
     }
 
     async getSiteListing(siteId: string) {
         try {
-            const listing = await this.drizzleService.partnersDb.query.menuCategories
-                .findMany({
-                    where: ((menuCategories, { eq }) => eq(menuCategories.menuId, siteId)),
-                    with: {
-                        products: true,
-                    }
-                })
-            return listing
+            const listing = await this.drizzleService.partnersDb.query.menuCategories.findMany({
+                where: (menuCategories, { eq }) => eq(menuCategories.menuId, siteId),
+                with: {
+                    products: true,
+                },
+            });
+
+            if (!listing.length) {
+                this.logger.warn(`No listings found for siteId: ${siteId}`);
+            }
+
+            return listing;
         } catch (error) {
-            throw new InternalServerErrorException('')
+            this.logger.error(`Failed to fetch site listing for siteId: ${siteId}`);
+            throw new InternalServerErrorException('Error fetching site listing');
         }
     }
 
     async getProductDetails(productId: string) {
-        const product = await this.drizzleService.partnersDb.query.products.findFirst({
-            where: (fields, { eq }) => eq(fields.id, productId)
-        })
+        try {
+            const product = await this.drizzleService.partnersDb.query.products.findFirst({
+                where: (fields, { eq }) => eq(fields.id, productId),
+            });
 
-        if (!product) {
-            this.logger.error(`product with id ${productId} not found in database`)
-            throw new NotFoundException()
+            if (!product) {
+                this.logger.warn(`Product with id ${productId} not found`);
+                throw new NotFoundException(`Product with id ${productId} not found`);
+            }
+
+            this.logger.log(`Fetched product details for productId: ${productId}`);
+            return product;
+        } catch (error) {
+            this.logger.error(`Failed to fetch product details for productId: ${productId}`);
+            throw new InternalServerErrorException('Error fetching product details');
         }
-
-        return product
     }
-
 }
