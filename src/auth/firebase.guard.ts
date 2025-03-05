@@ -28,6 +28,7 @@ export class FirebaseAuthGuard implements CanActivate {
                 };
                 req.user = user;
             } catch (_) {
+                console.log(_)
                 return false;
             }
             return true;

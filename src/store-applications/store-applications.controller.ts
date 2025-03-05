@@ -56,7 +56,8 @@ export class StoreApplicationsController {
 
     @Get()
     async getApplications(@CurrentUser() user: RequestUser) {
-        return this.applicationsService.getUserApplications(user.clerkId);
+        return [];
+        // return this.applicationsService.getUserApplications(user.clerkId);
     }
 
 }
