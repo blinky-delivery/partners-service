@@ -1,7 +1,9 @@
-import { Controller, NotFoundException, Query, Get, Param } from '@nestjs/common';
+import { Controller, NotFoundException, Query, Get, Param, UseInterceptors } from '@nestjs/common';
 import { QueryService } from './query.service';
+import { ExcludeResponseInterceptor } from 'src/response/response.interceptor';
 
 @Controller('query')
+@ExcludeResponseInterceptor()
 export class QueryController {
     constructor(private readonly queryService: QueryService) { }
 
