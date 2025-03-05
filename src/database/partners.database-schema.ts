@@ -88,6 +88,7 @@ export const storeSites = pgTable('store_sites', {
         .notNull()
         .references(() => storeTypes.id),
     headerImage: varchar('header_image'),
+    description: text('description').notNull().default(""),
     logoImage: varchar('logo_image'),
     approved: boolean('approved').default(false).notNull(),
     latitude: doublePrecision('latitude'),

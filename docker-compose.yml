@@ -71,6 +71,9 @@ services:
       # STORAGE_S3_REGION: "eu-central-1"
       # STORAGE_S3_ROOT: "directus"
 
+    networks:
+      - postgres
+
 networks:
   postgres:
     driver: bridge
