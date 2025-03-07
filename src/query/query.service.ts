@@ -54,8 +54,17 @@ export class QueryService {
 
     async getProductDetails(productId: string) {
         try {
+
             const product = await this.drizzleService.partnersDb.query.products.findFirst({
                 where: (fields, { eq }) => eq(fields.id, productId),
+                with: {
+                    modifiersToProducts: {
+                        with: {
+                            modifer: true,
+                        }
+                    }
+
+                }
             });
 
             if (!product) {
