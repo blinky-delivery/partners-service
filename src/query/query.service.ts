@@ -1,7 +1,9 @@
-import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
+import { Cache } from 'cache-manager'; // ! Don't forget this import
 
 const NearbyStoresQueryRadius = 7000;
 
@@ -9,7 +11,10 @@ const NearbyStoresQueryRadius = 7000;
 export class QueryService {
     private readonly logger = new Logger(QueryService.name);
 
-    constructor(private readonly drizzleService: DrizzleService) { }
+    constructor(
+        private readonly drizzleService: DrizzleService,
+        @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    ) { }
 
     async getStoreSitesInRadius(latitude: number, longitude: number) {
         try {

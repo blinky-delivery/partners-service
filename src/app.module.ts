@@ -20,6 +20,7 @@ import { AvailabilityModule } from './availability/availability.module';
 import { QueryService } from './query/query.service';
 import { QueryController } from './query/query.controller';
 import { CustomerModule } from './customer/customer.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { CustomerModule } from './customer/customer.module';
       },
       ),
     }),
+    CacheModule.register({ isGlobal: true }),
     AuthModule,
     UsersModule,
     StoreModule,
