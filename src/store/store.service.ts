@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, UnauthorizedException } from '@nestjs/common';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema, stores } from 'src/database/partners.database-schema';
 import { eq } from 'drizzle-orm';
@@ -49,7 +49,72 @@ export class StoreService {
             this.logger.error(
                 `Failed to insert store into database for Application ID: ${params.applicationId}`,
             );
+            throw new InternalServerErrorException('Failed to create store');
         }
+    }
+
+    async setUpStore(params: CreateStoreParams) {
+        await this.drizzleService.partnersDb.transaction(async (tx) => {
+            try {
+                const insertStoreResult = await tx.insert(partnersSchema.stores)
+                    .values({
+                        ownerId: params.userId,
+                        applicationId: params.applicationId,
+                        address: params.address,
+                        contactPhone: params.contactPhone,
+                        name: params.name,
+                        numberOfSites: params.numberOfSites,
+                        storeTypeId: params.storeType,
+                    }).returning()
+                const store = insertStoreResult.pop()
+                if (!store) {
+                    throw new Error('Failed to create store')
+                }
+
+                // Associate the user with the store
+                await tx.update(partnersSchema.storeUsers).set({ storeId: store.id }).where(eq(partnersSchema.storeUsers.id, params.userId))
+
+                const insertSiteResult = await tx.insert(partnersSchema.storeSites)
+                    .values({
+                        storeId: store.id,
+                        cityId: params.city,
+                        address: params.address,
+                        name: params.name,
+                        storeTypeId: params.storeType,
+                        approved: false,
+                        phone: params.contactPhone,
+                    }).returning()
+                const site = insertSiteResult.pop()
+
+                if (!site) {
+                    throw new Error('Failed to create site')
+                }
+
+                const insertMenuResult = await tx.insert(partnersSchema.menus)
+                    .values({
+                        id: site.id, // Really important menu identifier
+                        storeId: store.id,
+                        storeSiteId: site.id,
+                        name: '',
+                        description: '',
+                        enabled: true,
+                        status: 'approved',
+                        sort: 1,
+                    }).returning()
+
+                const menu = insertMenuResult.pop()
+                if (!menu) {
+                    throw new Error('Failed to create menu')
+                }
+
+            } catch (error) {
+                tx.rollback()
+                this.logger.error(
+                    `Failed to insert store into database for Application ID: ${params.applicationId}`,
+                )
+                throw new InternalServerErrorException('Failed to create store')
+            }
+        })
     }
 
 
@@ -81,14 +146,12 @@ export class StoreService {
         this.logger.log(`Fetching store with ID: ${storeId} for user with extAuthId: ${extAuthId}`);
         try {
             const user = await this.userService.getUserByExtAuthId(extAuthId);
+            const store = await this.drizzleService.partnersDb.query.stores.findFirst({ where: (fields, { eq }) => eq(fields.ownerId, user.id) })
 
-            if (storeId !== user.storeId) {
-                this.logger.warn(`User with ID: ${user.id} does not belong to store with ID: ${storeId}`);
-                return null;
+            if (!store) {
+                this.logger.warn(`Store with ID ${storeId} not found.`)
+                throw new Error('Store not found')
             }
-
-            const store = await this.getStoreById(storeId);
-
             return store;
         } catch (error) {
             if (error instanceof Error) {
@@ -103,12 +166,6 @@ export class StoreService {
     async getStoreSites(storeId: string, extAuthId: string) {
         this.logger.log(`Fetching sites for store with ID: ${storeId} for user with extAuthId: ${extAuthId}`);
         try {
-            const user = await this.userService.getUserByExtAuthId(extAuthId);
-            if (storeId !== user.storeId) {
-                this.logger.warn(`User with ID: ${user.id} does not belong to store with ID: ${storeId}`);
-                return null;
-            }
-
             const storeSites = await this.drizzleService.partnersDb
                 .select()
                 .from(partnersSchema.storeSites)

@@ -14,7 +14,7 @@ export enum FileType {
 }
 
 export enum DirectusFolder {
-    store_applications = '2f748fa2-aeea-4df6-b950-9ac9144750aa',
+    store_applications = 'fc4e6fd9-c0ae-44de-bc33-1cdad7fecbad',
 }
 
 
