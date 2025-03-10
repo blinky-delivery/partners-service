@@ -1,3 +1,15 @@
+CREATE TABLE "categories" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"icon" varchar DEFAULT '' NOT NULL,
+	"name" varchar(255) NOT NULL,
+	"ar" varchar(255) DEFAULT '' NOT NULL,
+	"en" varchar(255) DEFAULT '' NOT NULL,
+	"fr" varchar(255) DEFAULT '' NOT NULL,
+	"sort" integer DEFAULT 0,
+	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "cities" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(255) NOT NULL,
@@ -121,12 +133,14 @@ CREATE TABLE "store_sites" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"store_id" uuid NOT NULL,
 	"store_type_id" integer NOT NULL,
+	"category_ids" uuid[] DEFAULT '{}' NOT NULL,
 	"header_image" varchar,
+	"description" text DEFAULT '' NOT NULL,
 	"logo_image" varchar,
 	"approved" boolean DEFAULT false NOT NULL,
 	"latitude" double precision,
 	"longitude" double precision,
-	"location" geometry(point, 4326),
+	"location" geometry(point),
 	"name" varchar(255),
 	"city_id" integer NOT NULL,
 	"address" varchar(255),

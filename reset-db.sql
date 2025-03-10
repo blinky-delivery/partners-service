@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS
     customers, 
     stores, 
     store_sites, 
+    categories,
     store_types, 
     store_availability,
     store_special_hours,

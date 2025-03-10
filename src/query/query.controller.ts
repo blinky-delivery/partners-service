@@ -7,15 +7,26 @@ import { ExcludeResponseInterceptor } from 'src/response/response.interceptor';
 export class QueryController {
     constructor(private readonly queryService: QueryService) { }
 
+    @Get('categories')
+    async getCategories() {
+        return this.queryService.getCategories();
+    }
+
     @Get('sites')
     async getStoreSitesInRadius(
         @Query('latitude') latitude: number,
-        @Query('longitude') longitude: number
+        @Query('longitude') longitude: number,
+        @Query('category') category: string,
     ) {
         if (!latitude || !longitude) {
             throw new NotFoundException('Latitude and Longitude are required');
         }
-        return this.queryService.getStoreSitesInRadius(latitude, longitude);
+
+        if (!category) {
+            return this.queryService.getStoreSitesInRadius(latitude, longitude);
+        } else {
+            return this.queryService.getStoreSitesInRadiusByCategory(latitude, longitude, category);
+        }
     }
 
     @Get('site-listing/:siteId')
@@ -27,4 +38,6 @@ export class QueryController {
     async getProductDetails(@Param('productId') productId: string) {
         return this.queryService.getProductDetails(productId);
     }
+
+
 }

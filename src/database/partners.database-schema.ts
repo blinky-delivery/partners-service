@@ -76,6 +76,21 @@ export const stores = pgTable('stores', {
         .notNull(),
 });
 
+export const categories = pgTable('categories', {
+    id: serial('id').primaryKey(),
+    icon: varchar('icon',).notNull().default(''),
+    name: varchar('name', { length: 255 }).notNull(),
+    ar: varchar('ar', { length: 255 }).notNull().default(''),
+    es: varchar('es', { length: 255 }).notNull().default(''),
+    fr: varchar('fr', { length: 255 }).notNull().default(''),
+    sort: integer('sort').default(0),
+    createdAt: timestamp('created_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+})
 
 export const storeSites = pgTable('store_sites', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
@@ -87,6 +102,7 @@ export const storeSites = pgTable('store_sites', {
     storeTypeId: integer('store_type_id')
         .notNull()
         .references(() => storeTypes.id),
+    categoryIds: uuid('category_ids').array().notNull().default(sql`'{}'`),
     headerImage: varchar('header_image'),
     description: text('description').notNull().default(""),
     logoImage: varchar('logo_image'),
@@ -107,8 +123,7 @@ export const storeSites = pgTable('store_sites', {
     updatedAt: timestamp('updated_at', { withTimezone: true })
         .default(sql`CURRENT_TIMESTAMP`)
         .notNull(),
-});
-
+})
 
 export const menus = pgTable('menus', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
@@ -130,8 +145,6 @@ export const menus = pgTable('menus', {
     createdAt: timestamp('created_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
-
-
 
 export const menuCategories = pgTable('menu_categories', {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
@@ -323,6 +336,7 @@ export const partnersSchema = {
     storeTypes,
     stores,
     storeSites,
+    categories,
     menus,
     menuCategories,
     images,

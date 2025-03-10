@@ -1,1 +1,0 @@
-ALTER TABLE "store_sites" ADD COLUMN "description" text DEFAULT '' NOT NULL;

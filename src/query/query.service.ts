@@ -7,6 +7,17 @@ import { Cache } from 'cache-manager'; // ! Don't forget this import
 
 const NearbyStoresQueryRadius = 7000;
 
+type SiteListingResponse = {
+    id: string;
+    name: string;
+    description: string;
+    address: string;
+    headerImage: string;
+    latitude: number,
+    longitude: number,
+    categories: any[],
+}
+
 @Injectable()
 export class QueryService {
     private readonly logger = new Logger(QueryService.name);
@@ -15,6 +26,20 @@ export class QueryService {
         private readonly drizzleService: DrizzleService,
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     ) { }
+
+
+    async getCategories() {
+        try {
+            const categories = await this.drizzleService.partnersDb
+                .query.categories.findMany();
+
+            this.logger.log(`Fetched ${categories.length} categories`);
+            return categories;
+        } catch (error) {
+            this.logger.error('Failed to fetch categories');
+            throw new InternalServerErrorException('Error fetching categories');
+        }
+    }
 
     async getStoreSitesInRadius(latitude: number, longitude: number) {
         try {
@@ -37,20 +62,60 @@ export class QueryService {
         }
     }
 
+    async getStoreSitesInRadiusByCategory(latitude: number, longitude: number, categoryId: string) {
+        try {
+            const stores = await this.drizzleService.partnersDb
+                .select()
+                .from(partnersSchema.storeSites)
+                .where(sql`
+                ST_DWithin(
+                    ${partnersSchema.storeSites.location}::geography,
+                    ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography,
+                    ${NearbyStoresQueryRadius}
+                )
+                AND ${categoryId} = ANY(${partnersSchema.storeSites.categoryIds})
+            `)
+
+            this.logger.log(`Fetched ${stores.length} store sites within ${NearbyStoresQueryRadius}m of (${latitude}, ${longitude}) and category ${categoryId}`)
+            return stores
+
+        } catch (error) {
+            this.logger.error(`Failed to fetch store sites near (${latitude}, ${longitude}) in radius: ${NearbyStoresQueryRadius} and category ${categoryId}`);
+            throw new InternalServerErrorException('Error fetching nearby by category store sites');
+        }
+    }
+
     async getSiteListing(siteId: string) {
         try {
-            const listing = await this.drizzleService.partnersDb.query.menuCategories.findMany({
+            const site = await this.drizzleService.partnersDb.query.storeSites.findFirst({
+                where: (fields, { eq }) => eq(fields.id, siteId),
+            })
+            if (!site) {
+                this.logger.warn(`Site with id ${siteId} not found`);
+                throw new NotFoundException(`Site with id ${siteId} not found`);
+            }
+            const menuCategories = await this.drizzleService.partnersDb.query.menuCategories.findMany({
                 where: (menuCategories, { eq }) => eq(menuCategories.menuId, siteId),
                 with: {
                     products: true
                 },
             });
 
-            if (!listing.length) {
+            if (!menuCategories.length) {
                 this.logger.warn(`No listings found for siteId: ${siteId}`);
             }
 
-            return listing;
+            return {
+                id: site.id,
+                name: site.name,
+                address: site.address,
+                description: site.description,
+                headerImage: site.headerImage,
+                latitude: site.location?.x,
+                longitude: site.location?.y,
+                menuCategories: menuCategories
+            }
+
         } catch (error) {
             this.logger.error(`Failed to fetch site listing for siteId: ${siteId}, error: ${error}`)
             throw new InternalServerErrorException('Error fetching site listing');
@@ -65,7 +130,11 @@ export class QueryService {
                 with: {
                     modifiersToProducts: {
                         with: {
-                            modifer: true,
+                            modifer: {
+                                with: {
+                                    options: true
+                                }
+                            },
                         }
                     }
 
