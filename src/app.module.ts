@@ -22,6 +22,8 @@ import { QueryController } from './query/query.controller';
 import { CustomerModule } from './customer/customer.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { OrderModule } from './order/order.module';
+import { PrometheusService } from './prometheus/prometheus.service';
+import { PrometheusController } from './prometheus/prometheus.controller';
 
 @Module({
   imports: [
@@ -90,13 +92,14 @@ import { OrderModule } from './order/order.module';
     CustomerModule,
     OrderModule,
   ],
-  controllers: [QueryController],
+  controllers: [QueryController, PrometheusController],
   providers: [
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseFormatInterceptor,
     },
-    QueryService
+    QueryService,
+    PrometheusService
   ],
 })
 export class AppModule { }
