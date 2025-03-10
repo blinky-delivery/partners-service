@@ -201,4 +201,40 @@ export class ProductService {
         }
     }
 
+
+    async getProductById(productId: string) {
+        try {
+            this.logger.log(`Fetching product with ID: ${productId}`);
+            const product = await this.drizzleService.partnersDb
+                .query
+                .products
+                .findFirst({
+                    where: (fields, { eq }) => eq(fields.id, productId),
+                });
+            this.logger.log(`Product fetched successfully with ID: ${productId}`);
+            return product;
+        } catch (error) {
+            this.logger.error(`Error fetching product with ID: ${productId}`, error);
+            throw error;
+        }
+    }
+
+
+    async getModiferOptionById(optionId: string) {
+        try {
+            this.logger.log(`Fetching modifier option with ID: ${optionId}`);
+            const option = await this.drizzleService.partnersDb
+                .query
+                .modifierOptions
+                .findFirst({
+                    where: (fields, { eq }) => eq(fields.id, optionId),
+                });
+            this.logger.log(`Modifier option fetched successfully with ID: ${optionId}`);
+            return option;
+        } catch (error) {
+            this.logger.error(`Error fetching modifier option with ID: ${optionId}`, error);
+            throw error;
+        }
+
+    }
 }

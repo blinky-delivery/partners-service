@@ -73,6 +73,8 @@ import { PrometheusController } from './prometheus/prometheus.controller';
         DIRECTUS_URL: Joi.string().required(),
         DIRECTUS_TOKEN: Joi.string().required(),
         DIRECTUS_STORE_APPLICATIONS_FILES_FOLDER_ID: Joi.string().required(),
+        OPENROUTE_SERVICE_API_KEY: Joi.string().required(),
+        MAPBOX_API_KEY: Joi.string().required(),
       },
       ),
     }),
@@ -99,7 +101,7 @@ import { PrometheusController } from './prometheus/prometheus.controller';
       useClass: ResponseFormatInterceptor,
     },
     QueryService,
-    PrometheusService
+    PrometheusService,
   ],
 })
 export class AppModule { }

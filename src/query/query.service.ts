@@ -1,22 +1,13 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { Body, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException, Post } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import { DrizzleService } from 'src/database/drizzle.service';
 import { partnersSchema } from 'src/database/partners.database-schema';
 import { Cache } from 'cache-manager'; // ! Don't forget this import
+import { PriceEstimationRequestDto, PriceEstimationResponseDto } from 'src/order/order.dto';
+import { OrderPricingService } from 'src/order/order-pricing/order-pricing.service';
 
 const NearbyStoresQueryRadius = 7000;
-
-type SiteListingResponse = {
-    id: string;
-    name: string;
-    description: string;
-    address: string;
-    headerImage: string;
-    latitude: number,
-    longitude: number,
-    categories: any[],
-}
 
 @Injectable()
 export class QueryService {
@@ -25,6 +16,7 @@ export class QueryService {
     constructor(
         private readonly drizzleService: DrizzleService,
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+        private readonly pricingService: OrderPricingService,
     ) { }
 
 
@@ -152,5 +144,12 @@ export class QueryService {
             this.logger.error(`Failed to fetch product details for productId: ${productId}`);
             throw new InternalServerErrorException('Error fetching product details');
         }
+    }
+
+    @Post('estimate-price')
+    async estimatePrice(
+        @Body() request: PriceEstimationRequestDto
+    ): Promise<PriceEstimationResponseDto> {
+        return this.pricingService.estimateOrderPice(request);
     }
 }

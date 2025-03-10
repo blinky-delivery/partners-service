@@ -361,10 +361,37 @@ export const orderItems = pgTable('order_items', {
         .references(() => orders.id, { onDelete: 'cascade' }), // Link to order
     productId: uuid('product_id'), // Optional, for reference (can be null if product is deleted)
     productName: varchar('product_name', { length: 255 }).notNull(), // Snapshot of product name
-    productPrice: doublePrecision('product_price').notNull(), // Snapshot of product price
+    basePrice: doublePrecision('base_price').notNull(), // Snapshot of product price
     productImage: varchar('product_image', { length: 255 }), // Snapshot of product image URL
     quantity: integer('quantity').notNull(), // Quantity of the product
 })
+
+export const orderItemOptions = pgTable('order_item_options', {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+    orderItemId: uuid('order_item_id')
+        .notNull()
+        .references(() => orderItems.id, { onDelete: 'cascade' }),
+    modifierOptionId: uuid('modifier_option_id')
+        .references(() => modifierOptions.id, { onDelete: 'set null' }),
+    optionName: varchar('option_name', { length: 255 }).notNull(),
+    optionPrice: doublePrecision('option_price').notNull().default(0),
+})
+
+export const orderItemsRelations = relations(orderItems, ({ many }) => ({
+    options: many(orderItemOptions),
+}));
+
+export const orderItemOptionsRelations = relations(orderItemOptions, ({ one }) => ({
+    orderItem: one(orderItems, {
+        fields: [orderItemOptions.orderItemId],
+        references: [orderItems.id],
+    }),
+    modifierOption: one(modifierOptions, {
+        fields: [orderItemOptions.modifierOptionId],
+        references: [modifierOptions.id],
+    }),
+}));
+
 
 export const partnersSchema = {
     storeUsers,
@@ -391,4 +418,7 @@ export const partnersSchema = {
     storeSpecialHours,
     orders,
     orderItems,
+    orderItemsRelations,
+    orderItemOptions,
+    orderItemOptionsRelations,
 };

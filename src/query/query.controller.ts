@@ -1,11 +1,17 @@
-import { Controller, NotFoundException, Query, Get, Param, UseInterceptors } from '@nestjs/common';
+import { Controller, NotFoundException, Query, Get, Param, UseInterceptors, Post, Body } from '@nestjs/common';
 import { QueryService } from './query.service';
 import { ExcludeResponseInterceptor } from 'src/response/response.interceptor';
+import { DeliveryCalculatorService } from 'src/order/delivery-calculator/delivery-calculator.service';
+import { CoordinateDto, DistanceResponseDto, TransportProfile } from 'src/order/delivery-calculator/delivery-calculator.types';
 
 @Controller('query')
 @ExcludeResponseInterceptor()
 export class QueryController {
-    constructor(private readonly queryService: QueryService) { }
+    constructor(
+        private readonly queryService: QueryService,
+        private readonly deliveryCalculatorService: DeliveryCalculatorService
+
+    ) { }
 
     @Get('categories')
     async getCategories() {
@@ -39,5 +45,17 @@ export class QueryController {
         return this.queryService.getProductDetails(productId);
     }
 
+
+    @Post('calculate')
+    async calculateDelivery(
+        @Body() { origin, destination }: { origin: CoordinateDto, destination: CoordinateDto }
+    ): Promise<DistanceResponseDto> {
+        return this.deliveryCalculatorService.calculateDistance(origin, destination);
+    }
+
+    @Get('transport-profiles')
+    getTransportProfiles(): { profiles: TransportProfile[] } {
+        return { profiles: Object.values(TransportProfile) };
+    }
 
 }

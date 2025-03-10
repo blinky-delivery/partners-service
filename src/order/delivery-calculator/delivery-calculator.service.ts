@@ -75,6 +75,7 @@ export class DeliveryCalculatorService {
                 return this.mapboxDistance(origin, destination, profile as TransportProfile.DRIVING);
             case ServiceProvider.OPEN_ROUTE:
                 return this.openRouteDistance(origin, destination, profile);
+            // return this.mapboxDistance(origin, destination, profile as TransportProfile.DRIVING);
             default:
                 throw new Error(`Unsupported service provider: ${service}`);
         }
@@ -108,7 +109,7 @@ export class DeliveryCalculatorService {
         destination: CoordinateDto,
         profile: TransportProfile
     ): Promise<Omit<DistanceResponseDto, 'serviceUsed' | 'calculatedAt'>> {
-        const apiKey = this.getConfigValue('OPENROUTE_API_KEY');
+        const apiKey = this.getConfigValue('OPENROUTE_SERVICE_API_KEY');
 
         const url = `https://api.openrouteservice.org/v2/directions/${profile}`;
 
