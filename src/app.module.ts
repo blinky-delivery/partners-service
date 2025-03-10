@@ -21,6 +21,7 @@ import { QueryService } from './query/query.service';
 import { QueryController } from './query/query.controller';
 import { CustomerModule } from './customer/customer.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     ModifierModule,
     AvailabilityModule,
     CustomerModule,
+    OrderModule,
   ],
   controllers: [QueryController],
   providers: [

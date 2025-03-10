@@ -328,6 +328,44 @@ export const storeSpecialHours = pgTable('store_special_hours', {
     unq: unique().on(t.storeSiteId, t.specialDate, t.timeRangeIndex)
 }))
 
+export const orders = pgTable('orders', {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+    customerId: uuid('customer_id')
+        .references(() => customers.id, { onDelete: 'set null' }),
+    storeSiteId: uuid('store_site_id')
+        .references(() => storeSites.id, { onDelete: 'set null' }),
+    deliveryPrice: doublePrecision('delivery_price').notNull(),
+    itemsAmount: doublePrecision('items_amount').notNull(),
+    taxAmount: doublePrecision('tax_amount').notNull(),
+    serviceFee: doublePrecision('service_fee').notNull(),
+    totalAmount: doublePrecision('total_amount').notNull(),
+    status: varchar('status', { length: 50 }).notNull(), // Order status (e.g., pending, completed, canceled)
+    orderCode: varchar('order_code', { length: 255 }).notNull(),
+    approximatedDistance: doublePrecision('approximated_distance').notNull(),
+    deliveryAddress: varchar('delivery_address', { length: 255 }).notNull(),
+    deliveryLatitude: doublePrecision('delivery_latitude').notNull(),
+    deliveryLongitude: doublePrecision('delivery_longitude').notNull(),
+    deliveryLocation: geometry('delivery_location', { type: 'point', mode: 'xy', srid: 4326 }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+})
+
+export const orderItems = pgTable('order_items', {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+    orderId: uuid('order_id')
+        .notNull()
+        .references(() => orders.id, { onDelete: 'cascade' }), // Link to order
+    productId: uuid('product_id'), // Optional, for reference (can be null if product is deleted)
+    productName: varchar('product_name', { length: 255 }).notNull(), // Snapshot of product name
+    productPrice: doublePrecision('product_price').notNull(), // Snapshot of product price
+    productImage: varchar('product_image', { length: 255 }), // Snapshot of product image URL
+    quantity: integer('quantity').notNull(), // Quantity of the product
+})
+
 export const partnersSchema = {
     storeUsers,
     customers,
@@ -350,5 +388,7 @@ export const partnersSchema = {
     menuCategoriesRelations,
     optoinsRelations,
     storeAvailability,
-    storeSpecialHours
+    storeSpecialHours,
+    orders,
+    orderItems,
 };
