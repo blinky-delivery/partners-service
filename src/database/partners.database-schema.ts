@@ -374,6 +374,7 @@ export const orderItemOptions = pgTable('order_item_options', {
     modifierOptionId: uuid('modifier_option_id')
         .references(() => modifierOptions.id, { onDelete: 'set null' }),
     optionName: varchar('option_name', { length: 255 }).notNull(),
+    quantity: integer('quantity').notNull(),
     optionPrice: doublePrecision('option_price').notNull().default(0),
 })
 
@@ -390,6 +391,16 @@ export const orderItemOptionsRelations = relations(orderItemOptions, ({ one }) =
         fields: [orderItemOptions.modifierOptionId],
         references: [modifierOptions.id],
     }),
+}))
+
+export const storeSiteDailySequences = pgTable('store_site_daily_sequences', {
+    storeSiteId: uuid('store_site_id')
+        .notNull()
+        .references(() => storeSites.id),
+    date: date('date').notNull(),
+    lastSequence: integer('last_sequence').notNull().default(0),
+}, (t) => ({
+    pk: primaryKey({ columns: [t.storeSiteId, t.date] })
 }));
 
 
@@ -421,4 +432,5 @@ export const partnersSchema = {
     orderItemsRelations,
     orderItemOptions,
     orderItemOptionsRelations,
+    storeSiteDailySequences
 };
