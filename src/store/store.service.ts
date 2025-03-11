@@ -83,6 +83,7 @@ export class StoreService {
                         storeTypeId: params.storeType,
                         approved: false,
                         phone: params.contactPhone,
+
                     }).returning()
                 const site = insertSiteResult.pop()
 

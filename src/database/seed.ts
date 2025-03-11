@@ -4,6 +4,7 @@ import { partnersSchema } from "./partners.database-schema"
 import { reset, seed } from "drizzle-seed"
 import { ConfigService } from "@nestjs/config"
 import 'dotenv/config';
+import { eq, sql } from "drizzle-orm"
 
 const extAuthId1 = 'user_2rAQMUtwOkHdOqRuqI7w3qcOXEG'
 const storeUserId1 = '0c989fad-f50a-4344-ab3b-aea1a2b07fc6'
@@ -13,6 +14,42 @@ const cityId1 = 1
 const cityId2 = 2
 const storeSiteId1 = '6de5ea6f-72c4-4d45-8cb6-0967bfe724f2'
 const storeSiteId2 = 'b7a87857-50c6-4f06-9bf2-13defdf19f51'
+
+const headerImages = [
+    '3e594633-3b35-40d5-be61-321016d685f0',
+    '893ed8d6-e960-4ebe-b61d-d8386f89ebcb'
+]
+
+const storeSitesData = [
+    {
+        id: storeSiteId1,
+        name: "Cafe Canada",
+        lat: 33.59443438648149,
+        lng: -7.499216914616757,
+        // Use ST_MakePoint SQL function with explicit SRID
+        cityId: cityId1
+    },
+    {
+        id: storeSiteId2,
+        name: "Décathlon",
+        lat: 33.59263697989851,
+        lng: -7.531085015154607,
+        cityId: cityId2
+    }
+];
+
+const menuId1 = storeSiteId1
+
+const categoryIds = [
+    'c1d2e3f4-a5b6-4c7d-8e9f-0a1b2c3d4e5f',
+    'd2e3f4a5-b6c7-4d8e-9f0a-1b2c3d4e5f6a'
+]
+
+const productIds = [
+    '3451e93c-f804-4fb8-91cf-36e60330145d',
+    '7682aa6d-14d9-4b26-a858-fad9a1ac1943',
+    '86e045be-a578-470d-955a-1e5f5573c113',
+]
 
 async function main() {
     const configService = new ConfigService();
@@ -38,6 +75,10 @@ async function main() {
             stores: partnersSchema.stores,
             cities: partnersSchema.cities,
             storeSites: partnersSchema.storeSites,
+            menus: partnersSchema.menus,
+            menuCategories: partnersSchema.menuCategories,
+            products: partnersSchema.products,
+
         }
     ).refine((f) => ({
         storeTypes: {
@@ -79,20 +120,81 @@ async function main() {
                 numberOfSites: f.valuesFromArray({ values: [1] }),
             }
         },
+
         storeSites: {
-            count: 2,
+            count: storeSitesData.length,
             columns: {
-                id: f.valuesFromArray({ values: [storeSiteId1, storeSiteId2] }),
+                id: f.valuesFromArray({ values: storeSitesData.map(s => s.id) }),
+                latitude: f.valuesFromArray({ values: storeSitesData.map(s => s.lat) }),
+                longitude: f.valuesFromArray({ values: storeSitesData.map(s => s.lng) }),
+                cityId: f.valuesFromArray({ values: storeSitesData.map(s => s.cityId) }),
+                name: f.valuesFromArray({ values: storeSitesData.map(s => s.name) }),
                 address: f.streetAddress(),
                 approved: f.valuesFromArray({ values: [true] }),
-                cityId: f.valuesFromArray({ values: [cityId1, cityId2] }),
                 phone: f.phoneNumber(),
                 siteName: f.companyName(),
                 storeId: f.valuesFromArray({ values: [storeId1] }),
                 postalCode: f.postcode(),
+                headerImage: f.valuesFromArray({ values: headerImages }),
+            }
+        },
+        menus: {
+            count: 1,
+            columns: {
+                id: f.valuesFromArray({ values: [menuId1] }),
+                storeId: f.valuesFromArray({ values: [storeId1] }),
+                storeSiteId: f.valuesFromArray({ values: [storeSiteId1] }),
+                name: f.valuesFromArray({ values: ["Main Menu"] }),
+                description: f.loremIpsum(),
+                enabled: f.valuesFromArray({ values: [true] }),
+                sort: f.valuesFromArray({ values: [1] }),
+                status: f.valuesFromArray({ values: ["approved"] }),
+            }
+        },
+        menuCategories: {
+            count: 2,
+            columns: {
+                id: f.valuesFromArray({ values: categoryIds, isUnique: true },), // Ensure unique IDs
+                menuId: f.valuesFromArray({ values: [menuId1, menuId1] }),
+                name: f.valuesFromArray({ values: ["Appetizers", "Main Courses"] }),
+                description: f.loremIpsum(),
+                status: f.valuesFromArray({ values: ["approved", "approved"] }),
+                enabled: f.valuesFromArray({ values: [true, true] }),
+                sort: f.valuesFromArray({ values: [1, 2] }),
+            }
+        },
+        products: {
+            count: 3,
+            columns: {
+                id: f.valuesFromArray({ values: productIds, isUnique: true }), // Ensure unique IDs
+                storeId: f.valuesFromArray({ values: [storeId1, storeId1, storeId1] }),
+                menuId: f.valuesFromArray({ values: [menuId1, menuId1, menuId1] }),
+                menuCategoryId: f.valuesFromArray({
+                    values: [categoryIds[0], categoryIds[1], categoryIds[1]]
+                }),
+                name: f.valuesFromArray({
+                    values: [
+                        "Garlic Bread",
+                        "Grilled Salmon",
+                        "Beef Tenderloin"
+                    ]
+                }),
+                description: f.loremIpsum(),
+                price: f.valuesFromArray({ values: [25.99, 149.99, 189.99] }),
+                taxRate: f.valuesFromArray({ values: [0.1, 0.1, 0.1] }),
+                enabled: f.valuesFromArray({ values: [true, true, true] }),
+                sort: f.valuesFromArray({ values: [1, 1, 2] }),
             }
         },
     }))
+
+    for (const siteData in storeSitesData) {
+        await db.update(partnersSchema.storeSites)
+            .set({
+                location: sql`ST_SetSRID(ST_MakePoint(${storeSitesData[siteData].lng}, ${storeSitesData[siteData].lat}), 4326)`,
+            })
+            .where(eq(partnersSchema.storeSites.id, storeSitesData[siteData].id))
+    }
 }
 
 main()

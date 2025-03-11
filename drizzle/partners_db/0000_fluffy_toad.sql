@@ -96,12 +96,20 @@ CREATE TABLE "modifiers_to_products" (
 	CONSTRAINT "modifiers_to_products_modifier_id_product_id_pk" PRIMARY KEY("modifier_id","product_id")
 );
 --> statement-breakpoint
+CREATE TABLE "order_item_options" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"order_item_id" uuid NOT NULL,
+	"modifier_option_id" uuid,
+	"option_name" varchar(255) NOT NULL,
+	"option_price" double precision DEFAULT 0 NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "order_items" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"order_id" uuid NOT NULL,
 	"product_id" uuid,
 	"product_name" varchar(255) NOT NULL,
-	"product_price" double precision NOT NULL,
+	"base_price" double precision NOT NULL,
 	"product_image" varchar(255),
 	"quantity" integer NOT NULL
 );
@@ -239,6 +247,8 @@ ALTER TABLE "modifiers" ADD CONSTRAINT "modifiers_store_site_id_store_sites_id_f
 ALTER TABLE "modifiers" ADD CONSTRAINT "modifiers_menu_id_menus_id_fk" FOREIGN KEY ("menu_id") REFERENCES "public"."menus"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "modifiers_to_products" ADD CONSTRAINT "modifiers_to_products_modifier_id_modifiers_id_fk" FOREIGN KEY ("modifier_id") REFERENCES "public"."modifiers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "modifiers_to_products" ADD CONSTRAINT "modifiers_to_products_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "order_item_options" ADD CONSTRAINT "order_item_options_order_item_id_order_items_id_fk" FOREIGN KEY ("order_item_id") REFERENCES "public"."order_items"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "order_item_options" ADD CONSTRAINT "order_item_options_modifier_option_id_modifier_options_id_fk" FOREIGN KEY ("modifier_option_id") REFERENCES "public"."modifier_options"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "orders_customer_id_customers_id_fk" FOREIGN KEY ("customer_id") REFERENCES "public"."customers"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "orders_store_site_id_store_sites_id_fk" FOREIGN KEY ("store_site_id") REFERENCES "public"."store_sites"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint

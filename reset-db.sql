@@ -15,7 +15,10 @@ DROP TABLE IF EXISTS
     modifiers, 
     modifier_options, 
     menus, 
-    menu_categories, 
+    menu_categories,
+    orders,
+    order_items,
+    order_item_options,
     images, 
     cities 
     CASCADE;
