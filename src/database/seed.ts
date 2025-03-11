@@ -51,6 +51,79 @@ const productIds = [
     '86e045be-a578-470d-955a-1e5f5573c113',
 ]
 
+
+const modifierIds = [
+    '6d3285e9-5ea4-452b-8ac9-635c709826df',
+    '6adc2263-7341-403f-b70e-05912e9ca884'
+]
+
+const modifierOptionIds = [
+    '3451e93c-f804-4fb8-91cf-36e60330145d',
+    '7682aa6d-14d9-4b26-a858-fad9a1ac1943',
+    '86e045be-a578-470d-955a-1e5f5573c113',
+    'd2e3f4a5-b6c7-4d8e-9f0a-1b2c3d4e5f6a'
+]
+
+// Add modifier data
+const modifiersData = [
+    {
+        id: modifierIds[0],
+        name: "Sauce",
+        storeSiteId: storeSiteId1,
+        menuId: menuId1,
+        required: false,
+        multipleAllowed: true,
+        minQuantity: 0,
+        maxQuantity: 3,
+        maxFreeQuantity: 1
+    },
+    {
+        id: modifierIds[1],
+        name: "Spice Level",
+        storeSiteId: storeSiteId1,
+        menuId: menuId1,
+        required: true,
+        multipleAllowed: false,
+        minQuantity: 1,
+        maxQuantity: 1,
+        maxFreeQuantity: 0
+    }
+];
+
+const modifierOptionsData = [
+    // Sauce options
+    {
+        id: modifierOptionIds[0],
+        modifierId: modifierIds[0],
+        name: "Ketchup",
+        price: 0.00,
+        sort: 1
+    },
+    {
+        id: modifierOptionIds[1],
+        modifierId: modifierIds[0],
+        name: "Mayonnaise",
+        price: 5.00,
+        sort: 2
+    },
+    // Spice level options
+    {
+        id: modifierOptionIds[2],
+        modifierId: modifierIds[1],
+        name: "Mild",
+        price: 0.00,
+        sort: 1
+    },
+    {
+        id: modifierOptionIds[3],
+        modifierId: modifierIds[1],
+        name: "Hot",
+        price: 10.00,
+        sort: 2
+    }
+];
+
+
 async function main() {
     const configService = new ConfigService();
 
@@ -68,6 +141,8 @@ async function main() {
     )
     await reset(db, partnersSchema);
 
+
+
     await seed(db,
         {
             storeTypes: partnersSchema.storeTypes,
@@ -78,6 +153,8 @@ async function main() {
             menus: partnersSchema.menus,
             menuCategories: partnersSchema.menuCategories,
             products: partnersSchema.products,
+            modifiers: partnersSchema.modifiers,
+            modifierOptions: partnersSchema.modifierOptions,
 
         }
     ).refine((f) => ({
@@ -186,6 +263,21 @@ async function main() {
                 sort: f.valuesFromArray({ values: [1, 1, 2] }),
             }
         },
+
+        modifiers: {
+            count: modifiersData.length,
+            columns: {
+                id: f.valuesFromArray({ values: modifiersData.map(m => m.id), isUnique: true }),
+                name: f.valuesFromArray({ values: modifiersData.map(m => m.name) }),
+                storeSiteId: f.valuesFromArray({ values: modifiersData.map(m => m.storeSiteId) }),
+                menuId: f.valuesFromArray({ values: modifiersData.map(m => m.menuId) }),
+                required: f.valuesFromArray({ values: modifiersData.map(m => m.required) }),
+                multipleAllowed: f.valuesFromArray({ values: modifiersData.map(m => m.multipleAllowed) }),
+                minQuantity: f.valuesFromArray({ values: modifiersData.map(m => m.minQuantity) }),
+                maxQuantity: f.valuesFromArray({ values: modifiersData.map(m => m.maxQuantity) }),
+                maxFreeQuantity: f.valuesFromArray({ values: modifiersData.map(m => m.maxFreeQuantity) }),
+            }
+        },
     }))
 
     for (const siteData in storeSitesData) {
@@ -195,6 +287,31 @@ async function main() {
             })
             .where(eq(partnersSchema.storeSites.id, storeSitesData[siteData].id))
     }
+
+
+    const modifiersToProductsPairs: { modifierId: string; productId: string }[] = [];
+    const pairSet = new Set<string>();
+
+    for (const modifierId of modifierIds) {
+        for (const productId of productIds) {
+            const pairKey = `${modifierId}|${productId}`;
+            if (!pairSet.has(pairKey)) {
+                pairSet.add(pairKey);
+                modifiersToProductsPairs.push({ modifierId, productId });
+            }
+        }
+    }
+
+    for (const pair of modifiersToProductsPairs) {
+        await db.insert(partnersSchema.modifiersToProducts)
+            .values({
+                modifierId: pair.modifierId,
+                prdocutId: pair.productId
+            })
+            .execute()
+    }
+
+
 }
 
 main()
